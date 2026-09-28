@@ -296,3 +296,17 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - Lint and type checks clean.
 - PR merged with CI green.
 - Jira issue moved to Done.
+
+## Progress log
+
+### 2026-09-28
+
+- **E1-1 Repo setup: Done.** Merged in PR #1 (`msmaz910/personal_site`, private). Jira moved to Done.
+  - Git and uv initialized (`pyproject.toml`, `uv.lock`); `uv run python --version` gives 3.14.4.
+  - `.gitignore` and `.dockerignore` both exclude `.env` (`.env.example` stays tracked). `.dockerignore` also excludes `PLAN.md` and `Profile.pdf`.
+  - `README.md` skeleton added (Setup, Run, Test).
+- **Plan change:** E1-5 now adds a `live` pytest marker and one live test that makes a real OpenRouter call. Live tests are skipped by default and run with `uv run pytest -m live`.
+- **Notes:**
+  - Only one secret is needed: `OPENROUTER_API_KEY` (Claude is called through OpenRouter). Add it to `.env` in E1-2.
+  - `gh` installed via Homebrew and signed in. PRs are opened from the terminal.
+- **Next:** E1-2 (env files and config), then E1-4 (Vite scaffold).
