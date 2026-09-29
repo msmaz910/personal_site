@@ -313,3 +313,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Only one secret is needed: `OPENROUTER_API_KEY` (Claude is called through OpenRouter). Add it to `.env` in E1-2.
   - `gh` installed via Homebrew and signed in. PRs are opened from the terminal.
 - **Next:** E1-2 (env files and config), then E1-4 (Vite scaffold).
+
+- **E1-2 Env files and config: Done.** Merged in PR #2. Defaults set to `MAX_MESSAGE_CHARS=1000` and `MAX_REPLY_TOKENS=500`.
+- **Plan change (not a numbered story):** added `MAX_USER_MESSAGES` (default 10, so 20 messages including bot replies). The setting was merged in PR #3, which was mislabeled "E1-3" by mistake. It is not the E1-3 story. Enforcement is planned in E5-5 (backend) and E6-2 (frontend); the closing message text lives only in the backend.
+- **E1-3 is still the FastAPI skeleton** (`GET /api/health`) and has not started as of this entry.
+- **Next:** E1-3 (FastAPI skeleton), then E1-4 (Vite scaffold).
