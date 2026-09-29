@@ -11,8 +11,13 @@ cp .env.example .env   # then add your keys
 
 ## Run
 
-TBD
+```
+uv run uvicorn app.main:app --app-dir backend --port 8000
+curl localhost:8000/api/health
+```
 
 ## Test
 
-TBD
+```
+uv run pytest
+```

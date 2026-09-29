@@ -128,7 +128,7 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 - AC: `npm run dev` shows the page; `npm run build` produces `frontend/dist`.
 - Depends on: E1-1. Owner: Claude.
 
-**E1-5: Backend test setup.** Add pytest, pytest-cov, httpx, ruff with config. Add a `live` pytest marker and one live test that makes a single real OpenRouter call.
+**E1-5: Backend test setup.** Add pytest, pytest-cov, ruff (pytest and httpx2 already added in E1-2 and E1-3) with config. Add a `live` pytest marker and one live test that makes a single real OpenRouter call.
 - AC: `uv run pytest` passes with the health test and skips the live test; `uv run pytest -m live` makes one real call with `OPENROUTER_MODEL` and gets a reply; `uv run ruff check` is clean; coverage report prints.
 - Depends on: E1-3. Owner: Claude.
 
@@ -318,3 +318,5 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - **Plan change (not a numbered story):** added `MAX_USER_MESSAGES` (default 10, so 20 messages including bot replies). The setting was merged in PR #3, which was mislabeled "E1-3" by mistake. It is not the E1-3 story. Enforcement is planned in E5-5 (backend) and E6-2 (frontend); the closing message text lives only in the backend.
 - **E1-3 is still the FastAPI skeleton** (`GET /api/health`) and has not started as of this entry.
 - **Next:** E1-3 (FastAPI skeleton), then E1-4 (Vite scaffold).
+- **E1-3 FastAPI skeleton: Done.** `GET /api/health` in `backend/app/main.py`; test in `backend/tests/test_health.py`; curl returns 200 `{"status": "ok"}`.
+  - Used `httpx2` (not `httpx`) as the dev test client, since Starlette now deprecates `httpx`.
