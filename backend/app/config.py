@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     port: int = 8000
     max_message_chars: int = 1000
     max_reply_tokens: int = 500
+    max_user_messages: int = 10
 
 
 @lru_cache
