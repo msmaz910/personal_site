@@ -104,20 +104,18 @@ May 2007 - November 2008.
 
 ## About Me
 
-<!-- Personal section. Write in first person or third person, whichever you prefer. Delete these comment lines when done. -->
+Michelle is originally from Westchester County, New York and currently lives in Pensacola, Florida with her husband and their three Yorkies. She's also lived in San Diego, California (where she met her husband). She doesn't miss the snow in New York and is happy to put up with the very hot and humid Florida panhandle summers. She also likes living in Florida because it is close to her parents and it's a place people always want to come visit!
 
 ## Outside of Work
 
-<!-- Hiking, cycling, and other interests. -->
+When Michelle isn't working, she loves running, cycling (big Tour de France fan), hiking (although not often in Florida) and traveling. Her favorite place she's visited is Ravenna, Italy. Michelle also likes playing with her three dogs, relaxing with her husband, and going to the beach. She also likes cars - both classic and current - and watches a lot of Motortrend and Barrett-Jackson auctions on TV.
+
+Since Michelle is originally from New York, she's a Yankees, NY Rangers, and Buffalo Bills fan. She inherited the Buffalo Bills fandom from her Grandmother. Go Bills Mafia!
 
 ## What I Am Learning
 
-<!-- Your move into AI and data engineering: what you are studying and building. -->
+Michelle enjoys learning in her free time - whether that is reading, taking courses, or just following the latest tech news. She's currently learning a lot about AI - both using agents and building her own. Building this website was one of her pet projects! She's always looking to improve her Python and R skills, because she doesn't use them daily, and keep her SQL sharp. Her husband is driven crazy by her constant spreadsheets and dashboarding of anything and everything in their lives. She always has at least one science-related book that's half read and a stack of others next to her bed. Michelle also enjoys learning about leadership and the best way to manage teams and develop her employees. She's been incredibly fortunate to have many great managers throughout her career.
 
 ## Career Goals
 
-<!-- The role you want next and what kind of team or work you are looking for. -->
-
-## Projects
-
-<!-- Personal and portfolio projects, including this website. -->
+Michelle is really enjoying her current role and still learning a lot. If she was to take another role, it would be a Managing Director of Analytics Engineering or something similar.
