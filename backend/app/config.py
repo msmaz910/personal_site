@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     openrouter_api_key: str
     openrouter_model: str = "anthropic/claude-sonnet-5"
     port: int = 8000
-    max_message_chars: int = 2000
-    max_reply_tokens: int = 1000
+    max_message_chars: int = 1000
+    max_reply_tokens: int = 500
 
 
 @lru_cache
