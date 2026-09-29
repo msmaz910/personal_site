@@ -51,7 +51,7 @@ frontend/               Vite + React + TypeScript (src/, tests, e2e/)
 
 | File | Committed | Contents |
 |---|---|---|
-| `.env` | No | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `PORT`, `MAX_MESSAGE_CHARS`, `MAX_REPLY_TOKENS` |
+| `.env` | No | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `PORT`, `MAX_MESSAGE_CHARS`, `MAX_REPLY_TOKENS`, `MAX_USER_MESSAGES` |
 | `.env.example` | Yes | Same keys, placeholder values. Doubles as the checklist for Vercel settings |
 | `frontend/.env.development`, `frontend/.env.production` | Yes | Public values only: `VITE_SITE_NAME`, `VITE_LINKEDIN_URL`, `VITE_GITHUB_URL`, `VITE_CONTACT_EMAIL` |
 
@@ -210,8 +210,10 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - AC: unit tests for each case (reasoning block, script tag, oversized reply, normal reply unchanged); `/api/chat` returns only cleaned text.
 - Depends on: E5-3. Owner: Claude.
 
-**E5-5: Input limits.** Cap message length, number of messages sent, and reply tokens using env settings.
+**E5-5: Input limits.** Cap message length, number of messages sent, reply tokens, and total user messages per chat using env settings.
 - AC: oversized message returns 422; history longer than the cap is trimmed; `max_tokens` is passed to the model; tests for each.
+- AC: when the history holds more than `MAX_USER_MESSAGES` (10) user messages, the backend returns the closing message without calling the model; test covers it.
+- Closing message (backend is the only source): "Thank you for the great conversation! I've reached the limit for this chat, but Michelle would be glad to answer anything else. You can contact her at michelle.mazzotta@gmail.com or on LinkedIn."
 - Depends on: E5-3. Owner: Claude.
 
 ### E6 Chat frontend
@@ -222,6 +224,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E6-2: Wire chat to the API.** Send messages, show loading indicator, show replies as plain text, show a friendly error.
 - AC: with the API mocked, a sent message shows a loading state then the reply; a failed request shows an error message; history sent is capped; component tests.
+- AC: the panel counts user messages; at `MAX_USER_MESSAGES` it shows the closing message returned by the backend and disables the input; component test covers it.
 - Depends on: E6-1, E5-3. Owner: Claude.
 
 **E6-3: Suggested starter questions.** A few clickable prompts shown when the chat is empty.
