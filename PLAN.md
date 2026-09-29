@@ -320,3 +320,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - **Next:** E1-3 (FastAPI skeleton), then E1-4 (Vite scaffold).
 - **E1-3 FastAPI skeleton: Done.** `GET /api/health` in `backend/app/main.py`; test in `backend/tests/test_health.py`; curl returns 200 `{"status": "ok"}`.
   - Used `httpx2` (not `httpx`) as the dev test client, since Starlette now deprecates `httpx`.
+- **E1-3 marked Done in Jira.**
+- **E1-4 Vite + React + TypeScript scaffold: Done.** Scaffold in `frontend/` (Vite 8, React 19, TypeScript 6); placeholder page shows `VITE_SITE_NAME` and "Coming soon".
+  - `npm run dev` serves the page; `npm run build` produces `frontend/dist`; `npm run lint` is clean.
+  - The template ships with oxlint. E1-6 says ESLint, so decide there whether to keep oxlint or switch.
+
