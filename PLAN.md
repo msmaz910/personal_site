@@ -80,7 +80,7 @@ Starting point, to be tuned once seen in the browser.
 | End-to-end | Playwright against the running container | All 5 pages, deep-link refresh, chat opens and shows a reply |
 | Accessibility | axe inside Playwright | Contrast and semantics on every page |
 | Chat safety | pytest with mocked model | Prompt injection, off-topic, unanswerable questions, oversized input |
-| Static checks | ruff, ESLint, tsc | Lint, format, type errors |
+| Static checks | ruff, oxlint, tsc | Lint, format, type errors |
 | Container smoke | Docker build, run, hit `/api/health` | Image builds and starts |
 | Live evals | About 15 real questions against the real model | Chat accuracy. Run on demand, never in CI |
 
@@ -132,11 +132,11 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 - AC: `uv run pytest` passes with the health test and skips the live test; `uv run pytest -m live` makes one real call with `OPENROUTER_MODEL` and gets a reply; `uv run ruff check` is clean; coverage report prints.
 - Depends on: E1-3. Owner: Claude.
 
-**E1-6: Frontend test setup.** Add Vitest, React Testing Library, ESLint, `tsc` check.
+**E1-6: Frontend test setup.** Add Vitest, React Testing Library, `tsc` check (oxlint kept from E1-4).
 - AC: `npm test` passes with one component test; `npm run lint` and `npm run typecheck` are clean.
 - Depends on: E1-4. Owner: Claude.
 
-**E1-7: GitHub Actions CI.** Workflow runs ruff, pytest with coverage, ESLint, tsc, Vitest on every push and PR.
+**E1-7: GitHub Actions CI.** Workflow runs ruff, pytest with coverage, oxlint, tsc, Vitest on every push and PR.
 - AC: a PR shows all checks green; a deliberately broken test turns CI red (then reverted).
 - Depends on: E1-5, E1-6. Owner: Claude.
 
@@ -334,3 +334,10 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `uv run pytest -m live` makes one real OpenRouter call through the `openai` SDK (v3) and gets a reply.
   - Ruff rules: `E`, `F`, `I`, `UP`, `B`. `src = ["backend"]` so ruff treats `app` as first-party.
   - Note: the 80% floor also applies to `-m live` runs. Once E5 adds modules, live-only runs may need `--no-cov`.
+- **E1-5 moved to Done in Jira** after PR #7 merged.
+- **E1-6 Frontend test setup: Done (local commit, PR pending).**
+  - Kept oxlint instead of switching to ESLint (already configured, fast, fewer dependencies). Plan wording updated.
+  - Added Vitest 5, jsdom, React Testing Library and jest-dom. Config lives in `vite.config.ts`; setup in `src/test/setup.ts`.
+  - Scripts: `npm test` (`vitest run`), `npm run typecheck` (`tsc -b`), `npm run lint` (`oxlint`).
+  - One component test for `App`. Test code is not included in `dist`.
+  - jsdom is 29.1.1, not 30: jsdom 30 needs Node 24.15+, and local Node is 24.14.0.

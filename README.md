@@ -31,3 +31,11 @@ uv run pytest            # unit tests with coverage (80% floor)
 uv run pytest -m live    # one real OpenRouter call (needs OPENROUTER_API_KEY)
 uv run ruff check        # lint
 ```
+
+Frontend (from `frontend/`):
+
+```
+npm test                 # component tests (Vitest)
+npm run lint             # oxlint
+npm run typecheck        # tsc
+```
