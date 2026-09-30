@@ -27,5 +27,7 @@ npm run build   # outputs frontend/dist
 ## Test
 
 ```
-uv run pytest
+uv run pytest            # unit tests with coverage (80% floor)
+uv run pytest -m live    # one real OpenRouter call (needs OPENROUTER_API_KEY)
+uv run ruff check        # lint
 ```
