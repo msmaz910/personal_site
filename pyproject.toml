@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.141.1",
+    "openai>=3.22.1",
     "pydantic-settings>=2.15.0",
     "uvicorn>=0.54.0",
 ]
@@ -12,8 +13,18 @@ dependencies = [
 dev = [
     "httpx2>=2.13.1",
     "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.9",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["backend"]
 testpaths = ["backend/tests"]
+markers = ["live: calls the real OpenRouter API (run with `-m live`)"]
+addopts = "-m 'not live' --cov=app --cov-report=term-missing --cov-fail-under=80"
+
+[tool.ruff]
+src = ["backend"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

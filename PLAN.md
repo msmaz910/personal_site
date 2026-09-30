@@ -325,3 +325,12 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `npm run dev` serves the page; `npm run build` produces `frontend/dist`; `npm run lint` is clean.
   - The template ships with oxlint. E1-6 says ESLint, so decide there whether to keep oxlint or switch.
 
+
+### 2026-09-30
+
+- **E1-5 Backend test setup: Done (local commit, PR pending).**
+  - Added `pytest-cov` and `ruff` (dev) and `openai` (runtime, used by the live test now and by E5-3 later).
+  - `uv run pytest` runs unit tests, skips `live` tests, prints coverage, and fails below 80%.
+  - `uv run pytest -m live` makes one real OpenRouter call through the `openai` SDK (v3) and gets a reply.
+  - Ruff rules: `E`, `F`, `I`, `UP`, `B`. `src = ["backend"]` so ruff treats `app` as first-party.
+  - Note: the 80% floor also applies to `-m live` runs. Once E5 adds modules, live-only runs may need `--no-cov`.
