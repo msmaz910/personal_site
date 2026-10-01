@@ -377,3 +377,10 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - **E2-3 moved to Done in Jira** after PR #11 merged.
 - **E2-4 Connect GitHub to Vercel: In progress.**
   - Michelle installed the Vercel GitHub app; `vercel git connect` linked the project to `msmaz910/personal_site` with `main` as the production branch.
+- **E3-1 Theme tokens: Done (PR pending).**
+  - `frontend/src/styles/tokens.css` holds all tokens: 8 colors, 3 font families, 7 spacing steps. `index.css` imports it and sets dark-only base styles (Vite template styles and light mode removed).
+  - Fonts self-hosted with Fontsource variable packages: Fraunces (headings), Inter (body), JetBrains Mono (tech tags). No requests to Google.
+  - `StyleGuide` (rendered in `App` until E3-2) lists every token, read from `tokens.css` via `parseTokens()`, so the page and tests cannot drift from the CSS.
+  - Contrast test checks each text color on `bg` and `surface` is at least 4.5:1 (WCAG AA). Lowest pair is 7.11:1. Proved it fails with a low-contrast color.
+  - Root cause of an empty `tokens.css?raw` in tests: Vitest skips CSS files by default. Fixed with `test.css.include` in `vite.config.ts`.
+  - One-off axe-core 4.10.3 run in a real browser: 0 WCAG A/AA violations, 42 color-contrast passes, all 3 fonts loaded.
