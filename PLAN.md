@@ -373,3 +373,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `vercel link` appended `.env*` to `.gitignore`, which overrode the `!.env.example` exceptions. Removed it; kept `.vercel`.
   - Production: https://personal-site-one-gamma-42.vercel.app serves the page at `/` and `/career`, and `/api/health` returns `{"status":"ok"}`, without login. Image built by Vercel in about 27s.
   - The very first CLI deploy of a new project goes to production even without `--prod`. Production deploys are run by Michelle.
+
+- **E2-3 moved to Done in Jira** after PR #11 merged.
+- **E2-4 Connect GitHub to Vercel: In progress.**
+  - Michelle installed the Vercel GitHub app; `vercel git connect` linked the project to `msmaz910/personal_site` with `main` as the production branch.
