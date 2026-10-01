@@ -340,4 +340,5 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Added Vitest 5, jsdom, React Testing Library and jest-dom. Config lives in `vite.config.ts`; setup in `src/test/setup.ts`.
   - Scripts: `npm test` (`vitest run`), `npm run typecheck` (`tsc -b`), `npm run lint` (`oxlint`).
   - One component test for `App`. Test code is not included in `dist`.
-  - jsdom is 29.1.1, not 30: jsdom 30 needs Node 24.15+, and local Node is 24.14.0.
+  - Node upgraded to 26.10.0, so jsdom is on 30.1.1 (jsdom 30 needs Node 24.15+).
+  - `lint` runs `oxlint --deny-warnings` so warnings fail the check (and CI in E1-7).
