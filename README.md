@@ -39,6 +39,8 @@ docker run --env-file .env -p 8000:8000 personal-site
 
 The Vercel project `personal-site` uses the Container framework preset and builds `Dockerfile.vercel`. `PORT=8000` is set in project settings.
 
+The project is connected to GitHub. Every PR gets a preview URL, and every merge to `main` deploys production. Manual deploys still work:
+
 ```
 vercel deploy          # preview
 vercel deploy --prod   # production
