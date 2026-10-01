@@ -379,7 +379,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Michelle installed the Vercel GitHub app; `vercel git connect` linked the project to `msmaz910/personal_site` with `main` as the production branch.
 - **E3-1 Theme tokens: Done (PR pending).**
   - `frontend/src/styles/tokens.css` holds all tokens: 8 colors, 3 font families, 7 spacing steps. `index.css` imports it and sets dark-only base styles (Vite template styles and light mode removed).
-  - Fonts self-hosted with Fontsource variable packages: Fraunces (headings), Inter (body), JetBrains Mono (tech tags). No requests to Google.
+  - Fonts self-hosted with Fontsource: Young Serif (headings), Inter (body), JetBrains Mono (tech tags). No requests to Google.
+  - Headings switched from Fraunces to Young Serif, a free match for Patagonia's Belwe logo font (Belwe is commercial; their UI font Ridgeway Sans is proprietary). Young Serif has one weight, so headings use 400.
   - `StyleGuide` (rendered in `App` until E3-2) lists every token, read from `tokens.css` via `parseTokens()`, so the page and tests cannot drift from the CSS.
   - Contrast test checks each text color on `bg` and `surface` is at least 4.5:1 (WCAG AA). Lowest pair is 7.11:1. Proved it fails with a low-contrast color.
   - Root cause of an empty `tokens.css?raw` in tests: Vitest skips CSS files by default. Fixed with `test.css.include` in `vite.config.ts`.
