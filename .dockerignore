@@ -1,20 +1,23 @@
 # Secrets never go into the image
-.env
-.env.*
-!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 !frontend/.env.development
 !frontend/.env.production
 
 .git
 .gitignore
-.venv/
-__pycache__/
-*.pyc
+**/.venv/
+**/__pycache__/
+**/*.pyc
 .pytest_cache/
 .ruff_cache/
 .coverage
 htmlcov/
-node_modules/
+**/node_modules/
 .DS_Store
 PLAN.md
 Profile.pdf
+
+# Built in the image, never copied in
+frontend/dist/
