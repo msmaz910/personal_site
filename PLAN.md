@@ -154,6 +154,10 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 - AC: the Vercel URL serves the placeholder page and `/api/health`.
 - Depends on: E2-1, E2-2. Owner: Michelle (Vercel account), Claude (config).
 
+**E2-4: Connect GitHub to Vercel.** Link the Vercel project to `msmaz910/personal_site` so pushes deploy automatically (`vercel git connect`, after installing the Vercel GitHub app on the repo).
+- AC: a PR gets a preview URL; a merge to `main` deploys production; uploads still respect `.vercelignore` (no `.env`).
+- Depends on: E2-3. Owner: Michelle (GitHub app install), Claude (config).
+
 ### E3 Design system and layout
 
 **E3-1: Theme tokens.** CSS variables for colors, fonts, spacing; load fonts.
@@ -358,3 +362,14 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Proved: build succeeds; `/`, `/career`, `/api/health` return 200; no `.env` file anywhere in the image.
   - `.dockerignore` patterns now use `**/`. Without it, Docker matched only the top level, so `frontend/node_modules`, `__pycache__` and nested `.env` files (reproduced with `backend/.env`) entered the build.
   - Accepted: running the backend locally without `frontend/dist` returns 500 at `/`. Use the Vite dev server for pages.
+
+- **E2-2 moved to Done in Jira** after PR #10 merged.
+- **E2-3 Deploy hello-world to Vercel: Done (PR pending).**
+  - Project `personal-site` in team Lewis (Hobby), linked with `vercel link`. Deploys are from the CLI for now; GitHub auto-deploys are E2-4.
+  - `PORT=8000` set for Production and Preview.
+  - Root cause of a first deploy that served only Vercel 404s: `vercel project add` skips framework detection, so the preset was "Other" and Docker never ran. Fixed with `vercel project update --framework container`.
+  - Added `.vercelignore`: the CLI ignores `.gitignore` and `.dockerignore`, and its defaults skip `.env.local` but not `.env`. Confirmed on Vercel that the upload holds no `.env`, `Profile.pdf` or `PLAN.md`.
+  - Preview verified: `/`, `/career`, `/api/health` return 200; `/api/unknown` and `/assets/missing.js` return 404.
+  - `vercel link` appended `.env*` to `.gitignore`, which overrode the `!.env.example` exceptions. Removed it; kept `.vercel`.
+  - Production: https://personal-site-one-gamma-42.vercel.app serves the page at `/` and `/career`, and `/api/health` returns `{"status":"ok"}`, without login. Image built by Vercel in about 27s.
+  - The very first CLI deploy of a new project goes to production even without `--prod`. Production deploys are run by Michelle.
