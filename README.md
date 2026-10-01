@@ -24,6 +24,17 @@ npm run dev     # dev server
 npm run build   # outputs frontend/dist
 ```
 
+## Docker
+
+`Dockerfile.vercel` builds the frontend and serves it from FastAPI with the API, in one container.
+
+```
+docker build -f Dockerfile.vercel -t personal-site .
+docker run --env-file .env -p 8000:8000 personal-site
+```
+
+`.env` is never copied into the image; secrets are passed at run time.
+
 ## Test
 
 ```

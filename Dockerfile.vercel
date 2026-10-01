@@ -1,0 +1,18 @@
+# Stage 1: build the React frontend into static files
+FROM node:26-slim AS frontend
+WORKDIR /app/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Python runtime that serves the API and the built frontend
+FROM python:3.14-slim
+COPY --from=ghcr.io/astral-sh/uv:0.12.21 /uv /bin/
+ENV UV_PYTHON_DOWNLOADS=never
+WORKDIR /app
+COPY pyproject.toml uv.lock .python-version ./
+RUN uv sync --frozen --no-dev
+COPY backend/ backend/
+COPY --from=frontend /app/frontend/dist frontend/dist
+CMD ["sh", "-c", "exec uv run --no-sync uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port ${PORT:-8000}"]
