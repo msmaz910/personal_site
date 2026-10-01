@@ -35,6 +35,17 @@ docker run --env-file .env -p 8000:8000 personal-site
 
 `.env` is never copied into the image; secrets are passed at run time.
 
+## Deploy (Vercel)
+
+The Vercel project `personal-site` uses the Container framework preset and builds `Dockerfile.vercel`. `PORT=8000` is set in project settings.
+
+```
+vercel deploy          # preview
+vercel deploy --prod   # production
+```
+
+`.vercelignore` decides what is uploaded. Vercel ignores `.dockerignore`, so keep the two in sync.
+
 ## Test
 
 ```
