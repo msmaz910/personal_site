@@ -146,7 +146,7 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 - AC: written confirmation that a `Dockerfile.vercel` project can deploy on the account. If not, fall back to Vercel-native FastAPI and update this plan.
 - Depends on: none. Owner: Michelle.
 
-**E2-2: Multi-stage Dockerfile.vercel.** Stage 1 builds the frontend; stage 2 copies the uv binary from the official image (`COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/`), installs deps with `uv sync --frozen --no-dev` (so the build fails if `uv.lock` is out of date), and runs `uv run uvicorn` on `$PORT`. FastAPI serves `frontend/dist` and falls back to `index.html` for non-API paths.
+**E2-2: Multi-stage Dockerfile.vercel.** Stage 1 builds the frontend; stage 2 copies the uv binary from the official image (`COPY --from=ghcr.io/astral-sh/uv:0.12.21 /uv /bin/`, pinned like `setup-uv`), installs deps with `uv sync --frozen --no-dev` (so the build fails if `uv.lock` is out of date), and runs `uv run uvicorn` on `$PORT`. FastAPI serves `frontend/dist` and falls back to `index.html` for page routes (missing files and unknown `/api/` paths return 404).
 - AC: `docker build -f Dockerfile.vercel .` succeeds; `docker run --env-file .env -p 8000:8000 ...` serves the page at `/`, `/career` (direct load) and `/api/health`; `.env` is not inside the image (`docker run ... ls -a` check); test covers the SPA fallback.
 - Depends on: E1-3, E1-4. Owner: Claude.
 
@@ -349,3 +349,12 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `astral-sh/setup-uv` publishes only full version tags, so it is pinned to `v10.2.0` (`@v10` fails to resolve).
   - Proved: green run, then a deliberately broken health test turned `backend` red, then the revert turned it green.
   - Branch protection and rulesets need GitHub Pro on a private repo. Decided to skip; green checks before merge are by convention.
+
+### 2026-10-01
+
+- **E2-2 Multi-stage Dockerfile.vercel: Done (PR pending).**
+  - Stage 1 builds the frontend on `node:26-slim`; stage 2 is `python:3.14-slim` with uv `0.12.21` (pinned, current `latest`), `uv sync --frozen --no-dev`, and uvicorn on `${PORT:-8000}`.
+  - `backend/app/spa.py`: `SPAStaticFiles` returns `index.html` for page routes like `/career`. Missing files (`/assets/missing.js`) and unknown `/api/` paths return 404. Tests in `test_spa.py`.
+  - Proved: build succeeds; `/`, `/career`, `/api/health` return 200; no `.env` file anywhere in the image.
+  - `.dockerignore` patterns now use `**/`. Without it, Docker matched only the top level, so `frontend/node_modules`, `__pycache__` and nested `.env` files (reproduced with `backend/.env`) entered the build.
+  - Accepted: running the backend locally without `frontend/dist` returns 500 at `/`. Use the Vite dev server for pages.
