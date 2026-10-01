@@ -16,7 +16,7 @@ function Preview({ name }: Token) {
 function StyleGuide() {
   return (
     <section className="style-guide" aria-labelledby="style-guide-title">
-      <h2 id="style-guide-title">Design tokens</h2>
+      <h1 id="style-guide-title">Design tokens</h1>
       <ul>
         {tokens.map((token) => (
           <li key={token.name}>

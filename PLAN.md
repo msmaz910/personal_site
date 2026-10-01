@@ -385,3 +385,13 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Contrast test checks each text color on `bg` and `surface` is at least 4.5:1 (WCAG AA). Lowest pair is 7.11:1. Proved it fails with a low-contrast color.
   - Root cause of an empty `tokens.css?raw` in tests: Vitest skips CSS files by default. Fixed with `test.css.include` in `vite.config.ts`.
   - One-off axe-core 4.10.3 run in a real browser: 0 WCAG A/AA violations, 42 color-contrast passes, all 3 fonts loaded.
+
+- **E3-1 moved to Done in Jira** after PR #13 merged. Production serves the new theme.
+- **E3-2 Shared layout and routing: Done (PR pending).**
+  - React Router 8.4.0 in data mode: `createBrowserRouter` from `react-router`, `RouterProvider` from `react-router/dom` (v8 removed `react-router-dom`).
+  - `src/pages.tsx` lists the 5 pages once; the header nav and the routes are both built from it. Pages are placeholders until E4.
+  - `Layout` (header, main, footer) wraps every route. `NavLink` sets `aria-current="page"`, styled with the accent color and underline.
+  - Footer: copyright year plus LinkedIn and GitHub links from `VITE_` variables.
+  - Unknown paths show a Not found page inside the layout. The style guide moved to the unlisted `/style-guide` route.
+  - Vitest runs in `test` mode, so `.env.development` is not loaded and `VITE_` values are undefined. Header and footer tests set them with `vi.stubEnv`.
+  - Verified against FastAPI serving the build: deep-loading `/career` works, nav clicks update the page and the active link, `/nope` shows Not found, axe finds 0 WCAG A/AA violations.
