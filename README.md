@@ -39,3 +39,5 @@ npm test                 # component tests (Vitest)
 npm run lint             # oxlint
 npm run typecheck        # tsc
 ```
+
+CI (`.github/workflows/ci.yml`) runs the backend and frontend checks on every PR and on pushes to `main`. It never calls OpenRouter.
