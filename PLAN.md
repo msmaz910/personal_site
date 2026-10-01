@@ -342,3 +342,10 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - One component test for `App`. Test code is not included in `dist`.
   - Node upgraded to 26.10.0, so jsdom is on 30.1.1 (jsdom 30 needs Node 24.15+).
   - `lint` runs `oxlint --deny-warnings` so warnings fail the check (and CI in E1-7).
+- **E1-6 moved to Done in Jira** after PR #8 merged.
+- **E1-7 GitHub Actions CI: Done (PR #9 open).**
+  - `.github/workflows/ci.yml` runs on PRs and pushes to `main`. Two parallel jobs: `backend` (ruff, pytest with coverage) and `frontend` (oxlint, tsc, Vitest on Node 26).
+  - Python is managed by uv: `uv python pin 3.14` wrote `.python-version`; CI uses `setup-uv` and `uv sync --locked`. CI resolved CPython 3.14.7.
+  - `astral-sh/setup-uv` publishes only full version tags, so it is pinned to `v10.2.0` (`@v10` fails to resolve).
+  - Proved: green run, then a deliberately broken health test turned `backend` red, then the revert turned it green.
+  - Branch protection and rulesets need GitHub Pro on a private repo. Decided to skip; green checks before merge are by convention.
