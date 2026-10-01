@@ -397,3 +397,10 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Verified against FastAPI serving the build: deep-loading `/career` works, nav clicks update the page and the active link, `/nope` shows Not found, axe finds 0 WCAG A/AA violations.
 
 - **E3-2 moved to Done in Jira** after PR #14 merged.
+- **E3-3 Responsive mobile navigation: Done (PR pending).**
+  - Below 40rem a hamburger button (`aria-label="Menu"`, `aria-expanded`, `aria-controls`) sits beside the nav. CSS hides the nav with `.nav-toggle[aria-expanded="false"] + nav`, so `aria-expanded` is the only state. Desktop is unchanged.
+  - The open menu pushes content down rather than overlaying it, so focus is never hidden under it. It closes on a link click only (no Escape or click-outside, by choice).
+  - New `--size-touch` token (2.75rem, 44px) for the button and link tap targets. Visible `:focus-visible` outline on the button and links.
+  - Tests use `@testing-library/user-event`: starts closed, click toggles, keyboard Tab and Enter opens, link click closes and navigates. jsdom ignores CSS, so hiding is checked in the browser instead.
+  - Browser check at 375px: no horizontal scroll before or after. Header height 156px (links wrapped onto two lines) down to 77px closed. Tap targets 20px up to 44px. At 1280px the nav looks as before.
+  - Follow-ups: after a link click on mobile, focus falls to the body; footer side padding on phones (32px) no longer matches the header (16px).
