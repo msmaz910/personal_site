@@ -395,3 +395,5 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Unknown paths show a Not found page inside the layout. The style guide moved to the unlisted `/style-guide` route.
   - Vitest runs in `test` mode, so `.env.development` is not loaded and `VITE_` values are undefined. Header and footer tests set them with `vi.stubEnv`.
   - Verified against FastAPI serving the build: deep-loading `/career` works, nav clicks update the page and the active link, `/nope` shows Not found, axe finds 0 WCAG A/AA violations.
+
+- **E3-2 moved to Done in Jira** after PR #14 merged.
