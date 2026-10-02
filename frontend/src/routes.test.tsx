@@ -48,3 +48,11 @@ test('style guide is reachable but not in the nav', () => {
   expect(screen.queryByRole('link', { name: /style guide|design tokens/i })).toBeNull()
   expectLayout()
 })
+
+test.each(pages)('$path shows the decorative mountain band', ({ path }) => {
+  const { container } = renderAt(path)
+
+  const band = container.querySelector('svg.ridge')
+  expect(band).toBeInTheDocument()
+  expect(band).toHaveAttribute('aria-hidden', 'true')
+})

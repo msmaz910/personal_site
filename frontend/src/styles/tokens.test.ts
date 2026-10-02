@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { parseTokens, tokens } from './tokens.ts'
 
 const AA_NORMAL_TEXT = 4.5
-const TEXT_COLORS = ['text', 'text-muted', 'accent', 'sunset', 'sage']
+const TEXT_COLORS = ['text', 'text-muted', 'accent']
 const BACKGROUNDS = ['bg', 'surface']
 
 /** WCAG relative luminance of a #rrggbb color. */
@@ -44,3 +44,7 @@ test.each(TEXT_COLORS.flatMap((fg) => BACKGROUNDS.map((bg) => [fg, bg])))(
     expect(contrast(color(fg), color(bg))).toBeGreaterThanOrEqual(AA_NORMAL_TEXT)
   },
 )
+
+test('button text (bg) on accent meets WCAG AA', () => {
+  expect(contrast(color('bg'), color('accent'))).toBeGreaterThanOrEqual(AA_NORMAL_TEXT)
+})

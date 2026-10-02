@@ -1,13 +1,19 @@
 /* Design tokens. Every page uses these; change values here only. */
 :root {
-  --color-bg: #0b1620;
-  --color-surface: #13222f;
-  --color-border: #24384a;
-  --color-text: #f3eee4;
-  --color-text-muted: #b4bcc2;
-  --color-accent: #7fb2e5;
-  --color-sunset: #f2955a;
-  --color-sage: #a3bc9f;
+  --color-bg: #f3f4f1;
+  --color-surface: #e6e9e5;
+  --color-border: #cdd3cd;
+  --color-text: #1c2327;
+  --color-text-muted: #525c61;
+  --color-accent: #22618f;
+
+  /* Decorative only (mountain band), never used for text. */
+  --color-sky-1: #9fd3ef;
+  --color-sky-2: #8fa8e0;
+  --color-sky-3: #c58ad0;
+  --color-sky-4: #f2a07a;
+  --color-ridge-far: #7f8c99;
+  --color-ridge-near: #3b4650;
 
   --font-heading: 'Young Serif', Georgia, serif;
   --font-body: 'Inter Variable', system-ui, sans-serif;

@@ -64,9 +64,24 @@ Rules:
 
 ## Visual theme
 
-Starting point, to be tuned once seen in the browser.
+Current palette: **Alpine Stone** (light, chosen in E4-1; replaced the original dark navy theme).
 
-- Colors: deep night navy background (about `#0B1620`) with slightly lighter cards; warm off-white text (about `#F3EEE4`); Patagonia-style mountain blue accent, lightened for dark backgrounds; sunset orange secondary accent; sage green used sparingly.
+- Colors: cool granite-white background (`#F3F4F1`), slightly darker cards; charcoal text; one glacier-blue accent (`#22618F`) for titles, links and buttons. Sunset colours appear only in the decorative mountain band under the header, inspired by (not copying) a mountain-and-sunset logo.
+- Saved alternative: **Desert Sand**. Switch by pasting these into `tokens.css`. All pass WCAG AA.
+
+  | Token | Alpine Stone (current) | Desert Sand |
+  |---|---|---|
+  | `--color-bg` | `#f3f4f1` | `#f5efe4` |
+  | `--color-surface` | `#e6e9e5` | `#ebe2d2` |
+  | `--color-border` | `#cdd3cd` | `#d5c7b0` |
+  | `--color-text` | `#1c2327` | `#1f2a33` |
+  | `--color-text-muted` | `#525c61` | `#56606a` |
+  | `--color-accent` | `#22618f` | `#2b5f8c` |
+  | `--color-sky-1` to `-4` | `#9fd3ef` `#8fa8e0` `#c58ad0` `#f2a07a` | `#7cc4e8` `#9a8bd8` `#e8779a` `#f4a259` |
+  | `--color-ridge-far` | `#7f8c99` | `#7d6f8f` |
+  | `--color-ridge-near` | `#3b4650` | `#3e4a5c` |
+
+- All three sampled palettes (Alpine Stone, Desert Sand, Autumn Trail) and the intro-font options: open `docs/palette-samples.html` in a browser.
 - Type: sturdy serif for headings, clean sans-serif for body, monospace for tech tags.
 - Feel: generous spacing, subtle topographic or ridge-line motifs, real hiking and cycling photos where available.
 - Define colors and fonts once as CSS variables (E3-1). Every page uses them.
@@ -410,7 +425,11 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - **E3-3 moved to Done in Jira** after PR #15 merged.
 - **E4-1 Home: Done (PR pending).**
   - `src/data/home.ts` holds the typed content (title, mission, tags, intro, portfolio link). The name comes from `VITE_SITE_NAME`. `src/Home.tsx` renders it and replaces the Home placeholder in `pages.tsx`.
-  - Tagline split into the title (sunset), the mission (heading font), and dbt, Snowflake and Cloud as mono tags (`.tags`, reusable by Portfolio). Portfolio link styled as a 44px `.button`.
+  - Tagline split into the title (accent), the mission (heading font), and dbt, Snowflake and Cloud as mono tags (`.tags`, reusable by Portfolio). Portfolio link styled as a 44px `.button`.
   - `routes.test.tsx` now checks the nav label heading only on placeholder pages; Home has its own test. Shrink the filter as each E4 page lands.
   - Photo removed from Home at Michelle's request (may go on About). If reused: the original carries GPS data (14 EXIF GPS fields, proven with Pillow), so process it with Pillow via `uv run --with pillow`: `exif_transpose`, convert Display P3 to sRGB, crop square at x=150, y=300, side 2600, resize to 512px, WebP quality 80 (about 78 KB, no metadata).
   - Layout shift measured in Chromium with a `layout-shift` PerformanceObserver: Home 0.026 at 375px, 0.0003 at 1280px; Career also shifts. Root cause proven by delaying `.woff2` files 1s: the shift moves with font arrival (about 1050ms vs 50ms), 8 of 8 runs. It is the Fontsource `font-display: swap` rewrap, site-wide since E3-1. Accepted as within the "good" range. Fix if needed later: size-matched fallback fonts (`size-adjust`).
+  - Palette switched from dark navy to light **Alpine Stone** (see Visual theme), chosen from three samples in `docs/palette-samples.html`. Desert Sand is saved there and in the Visual theme table for a quick switch.
+  - Removed the `sunset` and `sage` text tokens (one blue accent now). Added decorative `sky-1` to `sky-4` and `ridge-far`/`ridge-near` tokens for the new `RidgeBand` (SVG mountain band under the header on every page, `aria-hidden`). Contrast test now also checks button text (`bg` on `accent`).
+  - Intro is larger and softer: Inter at 1.125rem, line height 1.65, muted colour.
+  - Verified: axe 4.10.3 finds 0 WCAG A/AA violations on all 6 routes at 375px and 1280px (mobile menu open on Home). CLS on Home 0.025 at 375px, 0.002 at 1280px.

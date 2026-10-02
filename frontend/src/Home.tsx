@@ -15,7 +15,7 @@ function Home() {
           <li key={tag}>{tag}</li>
         ))}
       </ul>
-      <p>{intro}</p>
+      <p className="home-intro">{intro}</p>
       <Link className="button" to={link.to}>
         {link.label}
       </Link>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Palette Samples</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Inter:wght@400;600&family=JetBrains+Mono&family=Source+Serif+4:opsz,wght@8..60,400&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; padding: 24px 16px 48px; background: #e9e6e0; color: #222; font: 15px/1.5 Inter, system-ui, sans-serif; }
+  .page-title { max-width: 1180px; margin: 0 auto 8px; font: 28px/1.2 'Young Serif', Georgia, serif; }
+  .lede { max-width: 1180px; margin: 0 auto 16px; color: #555; }
+  .controls { max-width: 1180px; margin: 0 auto 24px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .controls button { font: inherit; padding: 8px 14px; border: 1px solid #aaa; background: #fff; border-radius: 8px; cursor: pointer; }
+  .controls button[aria-pressed="true"] { background: #222; color: #fff; border-color: #222; }
+  .grid { max-width: 1180px; margin: 0 auto; display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .option-name { margin: 0 0 4px; font: 20px/1.2 'Young Serif', Georgia, serif; }
+  .option-note { margin: 0 0 12px; color: #555; font-size: 14px; }
+
+  .site { --gap: 16px; background: var(--bg); color: var(--text); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgb(0 0 0 / 0.15); }
+  .site header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+  .site .name { font-family: 'Young Serif', Georgia, serif; font-size: 17px; }
+  .site nav { display: flex; gap: 12px; font-size: 13px; color: var(--muted); }
+  .site nav .active { color: var(--accent); text-decoration: underline; text-underline-offset: 6px; }
+  .ridge { display: block; width: 100%; height: 70px; }
+  .site main { padding: 20px 20px 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .site h2 { margin: 0; font: 34px/1.15 'Young Serif', Georgia, serif; }
+  .site .role { margin: 0; color: var(--accent); font-weight: 600; }
+  .site .mission { margin: 0; font: 20px/1.3 'Young Serif', Georgia, serif; }
+  .site ul { display: flex; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .site li { padding: 2px 12px; font: 13px/1.6 'JetBrains Mono', monospace; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 24px; }
+  .site .intro { margin: 0; }
+  .intro-inter .intro { font: 17px/1.65 Inter, sans-serif; color: var(--muted); }
+  .intro-serif .intro { font: 18px/1.6 'Source Serif 4', Georgia, serif; color: var(--text); }
+  .intro-current .intro { font: 15px/1.6 Inter, sans-serif; color: var(--text); }
+  .site .button { display: inline-block; padding: 11px 20px; background: var(--accent); color: var(--on-accent); font-weight: 600; border-radius: 8px; text-decoration: none; }
+  .site footer { padding: 14px 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; }
+  .site footer span:last-child { color: var(--accent); text-decoration: underline; }
+
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 12px; }
+  .swatch { font: 11px/1.3 'JetBrains Mono', monospace; color: #333; }
+  .chip { height: 34px; border-radius: 6px; border: 1px solid rgb(0 0 0 / 0.12); margin-bottom: 3px; }
+  .checks { margin: 10px 0 0; padding: 0; list-style: none; font: 12px/1.6 'JetBrains Mono', monospace; color: #333; }
+  .pass { color: #1d6b35; } .fail { color: #a32020; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1 class="page-title">Palette samples</h1>
+<p class="lede">Chosen in E4-1: B, Alpine Stone, with larger, softer Inter. Three light, outdoor-inspired palettes, each with one blue accent. The sunset colours live only in the decorative mountain band. Contrast checks are calculated live: text needs at least 4.5:1 (WCAG AA).</p>
+<div class="controls" role="group" aria-label="Intro font">
+  <strong>Intro font:</strong>
+  <button data-font="intro-current" aria-pressed="false">Inter, as today</button>
+  <button data-font="intro-inter" aria-pressed="true">Larger, softer Inter</button>
+  <button data-font="intro-serif" aria-pressed="false">Source Serif 4</button>
+</div>
+<div class="grid" id="grid"></div>
+
+<template id="site">
+  <div>
+    <h2 class="option-name"></h2>
+    <p class="option-note"></p>
+    <div class="site intro-inter">
+      <header><span class="name">Michelle Lewis</span><nav><span class="active">Home</span><span>About</span><span>Career</span><span>Portfolio</span><span>Contact</span></nav></header>
+      <svg class="ridge" viewBox="0 0 400 70" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient class="sky" x1="0" y1="0" x2="1" y2="0"></linearGradient></defs>
+        <rect width="400" height="70" class="sky-rect"/>
+        <path class="far" d="M0 70 L0 46 L50 30 L95 44 L150 18 L205 40 L250 26 L300 42 L350 22 L400 38 L400 70 Z"/>
+        <path class="near" d="M0 70 L0 58 L70 44 L120 56 L185 36 L240 54 L300 46 L360 58 L400 50 L400 70 Z"/>
+      </svg>
+      <main>
+        <h2>Michelle Lewis</h2>
+        <p class="role">Analytics Engineering Leader</p>
+        <p class="mission">Building Data Pipelines That Drive Corporate Strategy</p>
+        <ul><li>dbt</li><li>Snowflake</li><li>Cloud</li></ul>
+        <p class="intro">I currently lead Data Science Enterprise Analytics at Insperity, where I turn data from across the enterprise into dashboards, models, and pipelines that leaders use to set strategy. My path runs from Wall Street data desks through customer success to analytics engineering, so I build with the people who use the data in mind.</p>
+        <a class="button" href="#">View my portfolio</a>
+      </main>
+      <footer><span>&copy; 2026 Michelle Lewis</span><span>LinkedIn</span></footer>
+    </div>
+    <div class="swatches"></div>
+    <ul class="checks"></ul>
+  </div>
+</template>
+
+<script>
+const palettes = [
+  {
+    name: 'A. Desert Sand (summer)',
+    note: 'Warm oat background, deep slate text, lake-blue accent. Friendly and sunny.',
+    colors: { bg: '#f5efe4', surface: '#ebe2d2', border: '#d5c7b0', text: '#1f2a33', muted: '#56606a', accent: '#2b5f8c', 'on-accent': '#ffffff' },
+    sky: ['#7cc4e8', '#9a8bd8', '#e8779a', '#f4a259'], far: '#7d6f8f', near: '#3e4a5c',
+  },
+  {
+    name: 'B. Alpine Stone (winter)',
+    note: 'Cool granite white, charcoal text, glacier-blue accent. Crisp and most corporate.',
+    colors: { bg: '#f3f4f1', surface: '#e6e9e5', border: '#cdd3cd', text: '#1c2327', muted: '#525c61', accent: '#22618f', 'on-accent': '#ffffff' },
+    sky: ['#9fd3ef', '#8fa8e0', '#c58ad0', '#f2a07a'], far: '#7f8c99', near: '#3b4650',
+  },
+  {
+    name: 'C. Autumn Trail (fall)',
+    note: 'Parchment background, warm espresso text, deep-water blue accent. Cosy and earthy.',
+    colors: { bg: '#f6efe3', surface: '#eee1cc', border: '#d9c5a6', text: '#2a2520', muted: '#625649', accent: '#2d5876', 'on-accent': '#ffffff' },
+    sky: ['#f7c873', '#f29b4f', '#d9604c', '#8e4a6f'], far: '#9a6a4f', near: '#4a3a2e',
+  },
+]
+
+function luminance(hex) {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+function contrast(a, b) {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+const pairs = [['text', 'bg'], ['muted', 'bg'], ['muted', 'surface'], ['accent', 'bg'], ['on-accent', 'accent']]
+const grid = document.getElementById('grid')
+
+palettes.forEach((p, i) => {
+  const node = document.getElementById('site').content.cloneNode(true)
+  node.querySelector('.option-name').textContent = p.name
+  node.querySelector('.option-note').textContent = p.note
+  const site = node.querySelector('.site')
+  for (const [k, v] of Object.entries(p.colors)) site.style.setProperty(`--${k}`, v)
+
+  const grad = node.querySelector('.sky')
+  grad.id = `sky${i}`
+  p.sky.forEach((c, j) => {
+    const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop')
+    stop.setAttribute('offset', j / (p.sky.length - 1))
+    stop.setAttribute('stop-color', c)
+    grad.append(stop)
+  })
+  node.querySelector('.sky-rect').setAttribute('fill', `url(#sky${i})`)
+  node.querySelector('.far').setAttribute('fill', p.far)
+  node.querySelector('.near').setAttribute('fill', p.near)
+
+  const sw = node.querySelector('.swatches')
+  for (const [k, v] of Object.entries(p.colors)) {
+    sw.insertAdjacentHTML('beforeend', `<div class="swatch"><div class="chip" style="background:${v}"></div>${k}<br>${v}</div>`)
+  }
+  sw.insertAdjacentHTML('beforeend', `<div class="swatch"><div class="chip" style="background:linear-gradient(90deg,${p.sky.join(',')})"></div>sunset band<br>decorative</div>`)
+
+  const checks = node.querySelector('.checks')
+  for (const [fg, bg] of pairs) {
+    const r = contrast(p.colors[fg], p.colors[bg])
+    const ok = r >= 4.5
+    checks.insertAdjacentHTML('beforeend', `<li>${fg} on ${bg}: ${r.toFixed(2)}:1 <span class="${ok ? 'pass' : 'fail'}">${ok ? 'pass' : 'FAIL'}</span></li>`)
+  }
+  grid.append(node)
+})
+
+document.querySelectorAll('.controls button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.controls button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)))
+    document.querySelectorAll('.site').forEach((s) => { s.className = `site ${btn.dataset.font}` })
+  })
+})
+</script>
+</body>
+</html>
