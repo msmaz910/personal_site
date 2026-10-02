@@ -176,13 +176,14 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 
 Content lives in typed data files in `frontend/src/data/`. No database.
 
-**E4-1: Home.** Name, tagline, photo, short intro, links to Portfolio and chat.
-- AC: renders from data file; component test; no layout shift on load.
-- Depends on: E3-2. Owner: Claude builds, Michelle supplies tagline and photo.
+**E4-1: Home.** Name, tagline, short intro, link to Portfolio. No photo on Home (Michelle's choice); the chat link moves to E6-1.
+- AC: renders from data file; component test; layout shift on load within Google's "good" range (CLS under 0.1), measured in a real browser.
+- Depends on: E3-2. Owner: Claude builds, Michelle supplies tagline.
 
 **E4-2: About.** Personal story, skills, and the hiking and cycling side.
 - AC: renders from data file; component test; images have alt text.
 - Depends on: E3-2. Owner: Claude builds, Michelle supplies copy and photos.
+- Candidate photo: `IMG_2840.JPG` on Jira E4-1 (vineyard). See the E4-1 progress log for crop settings.
 
 **E4-3: Career.** Timeline of roles and education.
 - AC: entries render in order from a data file; component test with sample entries.
@@ -224,6 +225,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E6-1: Floating button and panel.** Button on every page opens a chat panel.
 - AC: present on all 5 routes; opens and closes by mouse and keyboard; focus moves into the panel and returns on close; component tests.
+- AC: Home page links to the chat (moved here from E4-1).
 - Depends on: E3-2. Owner: Claude.
 
 **E6-2: Wire chat to the API.** Send messages, show loading indicator, show replies as plain text, show a friendly error.
@@ -404,3 +406,11 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Tests use `@testing-library/user-event`: starts closed, click toggles, keyboard Tab and Enter opens, link click closes and navigates. jsdom ignores CSS, so hiding is checked in the browser instead.
   - Browser check at 375px: no horizontal scroll before or after. Header height 156px (links wrapped onto two lines) down to 77px closed. Tap targets 20px up to 44px. At 1280px the nav looks as before.
   - Follow-ups: after a link click on mobile, focus falls to the body; footer side padding on phones (32px) no longer matches the header (16px).
+
+- **E3-3 moved to Done in Jira** after PR #15 merged.
+- **E4-1 Home: Done (PR pending).**
+  - `src/data/home.ts` holds the typed content (title, mission, tags, intro, portfolio link). The name comes from `VITE_SITE_NAME`. `src/Home.tsx` renders it and replaces the Home placeholder in `pages.tsx`.
+  - Tagline split into the title (sunset), the mission (heading font), and dbt, Snowflake and Cloud as mono tags (`.tags`, reusable by Portfolio). Portfolio link styled as a 44px `.button`.
+  - `routes.test.tsx` now checks the nav label heading only on placeholder pages; Home has its own test. Shrink the filter as each E4 page lands.
+  - Photo removed from Home at Michelle's request (may go on About). If reused: the original carries GPS data (14 EXIF GPS fields, proven with Pillow), so process it with Pillow via `uv run --with pillow`: `exif_transpose`, convert Display P3 to sRGB, crop square at x=150, y=300, side 2600, resize to 512px, WebP quality 80 (about 78 KB, no metadata).
+  - Layout shift measured in Chromium with a `layout-shift` PerformanceObserver: Home 0.026 at 375px, 0.0003 at 1280px; Career also shifts. Root cause proven by delaying `.woff2` files 1s: the shift moves with font arrival (about 1050ms vs 50ms), 8 of 8 runs. It is the Fontsource `font-display: swap` rewrap, site-wide since E3-1. Accepted as within the "good" range. Fix if needed later: size-matched fallback fonts (`size-adjust`).

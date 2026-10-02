@@ -1,7 +1,17 @@
 import { screen } from '@testing-library/react'
-import { expect, test } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { pages } from './pages.tsx'
 import { renderAt } from './test/renderAt.tsx'
+
+const placeholderPages = pages.filter(({ path }) => path !== '/')
+
+beforeEach(() => {
+  vi.stubEnv('VITE_SITE_NAME', 'Test Site')
+})
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
 
 function expectLayout() {
   expect(screen.getByRole('banner')).toBeInTheDocument()
@@ -9,10 +19,17 @@ function expectLayout() {
   expect(screen.getByRole('contentinfo')).toBeInTheDocument()
 }
 
-test.each(pages)('$path renders $label inside the layout', ({ path, label }) => {
+test.each(placeholderPages)('$path renders $label inside the layout', ({ path, label }) => {
   renderAt(path)
 
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(label)
+  expectLayout()
+})
+
+test('/ renders the home page inside the layout', () => {
+  renderAt('/')
+
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Test Site')
   expectLayout()
 })
 
