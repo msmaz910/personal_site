@@ -197,6 +197,12 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - AC: renders from data file; component test; images have alt text.
 - Depends on: E3-2. Owner: Claude builds, Michelle supplies copy and photos.
 - Candidate photo: `IMG_2840.JPG` on Jira E4-1 (vineyard). See the E4-1 progress log for crop settings.
+- Copy source: Claude drafts first-person copy from `backend/data/profile.md` (story, outdoors, personality, learning and leadership); Michelle approves.
+- **Decisions needed from Michelle before starting (as of 2026-10-01):**
+  1. **Skills list.** `profile.md` "Top Skills" has only Data Modeling, DBT and Visual Studio, which doesn't match the Home tags (Analytics, Snowflake, AI). Either supply 8 to 12 skills, or have Claude draft a list from the experience section to edit.
+  2. **Privacy.** What personal details can show publicly on the page: city (Pensacola, or just "Florida panhandle"), husband, parents nearby, the three Yorkies, sports teams.
+  3. **Photos.** Use the vineyard photo, add hiking or cycling photos to the Jira E4-2 story, or go text-only like Home.
+- Related (Michelle's file): add Snowflake and AI experience to `profile.md` so the chat can answer questions about the Home tags.
 
 **E4-3: Career.** Timeline of roles and education.
 - AC: entries render in order from a data file; component test with sample entries.
