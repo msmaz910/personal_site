@@ -1,13 +1,17 @@
 /* Design tokens. Every page uses these; change values here only. */
 :root {
-  --color-bg: #0b1620;
-  --color-surface: #13222f;
-  --color-border: #24384a;
-  --color-text: #f3eee4;
-  --color-text-muted: #b4bcc2;
-  --color-accent: #7fb2e5;
-  --color-sunset: #f2955a;
-  --color-sage: #a3bc9f;
+  --color-bg: #f5efe4;
+  --color-surface: #ebe2d2;
+  --color-border: #d5c7b0;
+  --color-text: #1f2a33;
+  --color-text-muted: #56606a;
+  --color-accent: #2b5f8c;
+
+  /* Decorative only (header hairline gradient), never used for text. */
+  --color-sky-1: #7cc4e8;
+  --color-sky-2: #9a8bd8;
+  --color-sky-3: #e8779a;
+  --color-sky-4: #f4a259;
 
   --font-heading: 'Young Serif', Georgia, serif;
   --font-body: 'Inter Variable', system-ui, sans-serif;

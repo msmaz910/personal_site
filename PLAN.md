@@ -64,11 +64,24 @@ Rules:
 
 ## Visual theme
 
-Starting point, to be tuned once seen in the browser.
+Current palette: **Desert Sand** (light, chosen in E4-1; replaced the original dark navy theme). Outdoorsy colours, sleek modern-tech feel.
 
-- Colors: deep night navy background (about `#0B1620`) with slightly lighter cards; warm off-white text (about `#F3EEE4`); Patagonia-style mountain blue accent, lightened for dark backgrounds; sunset orange secondary accent; sage green used sparingly.
-- Type: sturdy serif for headings, clean sans-serif for body, monospace for tech tags.
-- Feel: generous spacing, subtle topographic or ridge-line motifs, real hiking and cycling photos where available.
+- Colors: warm oat background (`#F5EFE4`), slightly darker cards; deep slate text; one lake-blue accent (`#2B5F8C`) for titles, links and buttons. Sunset colours appear only in a 3px gradient hairline under the header, inspired by (not copying) a mountain-and-sunset logo. No illustrated shapes.
+- Saved alternative: **Alpine Stone** (cooler, crisper). Switch by pasting these into `tokens.css`. All pass WCAG AA.
+
+  | Token | Desert Sand (current) | Alpine Stone |
+  |---|---|---|
+  | `--color-bg` | `#f5efe4` | `#f3f4f1` |
+  | `--color-surface` | `#ebe2d2` | `#e6e9e5` |
+  | `--color-border` | `#d5c7b0` | `#cdd3cd` |
+  | `--color-text` | `#1f2a33` | `#1c2327` |
+  | `--color-text-muted` | `#56606a` | `#525c61` |
+  | `--color-accent` | `#2b5f8c` | `#22618f` |
+  | `--color-sky-1` to `-4` | `#7cc4e8` `#9a8bd8` `#e8779a` `#f4a259` | `#9fd3ef` `#8fa8e0` `#c58ad0` `#f2a07a` |
+
+- Palette samples (Desert Sand, Alpine Stone, Autumn Trail) and intro-font options: open `docs/palette-samples.html` in a browser.
+- Type: Young Serif for headings (kept after previewing Inter bold, Space Grotesk and Plus Jakarta Sans), Inter for body (intro at 1.125rem, muted), JetBrains Mono for tags.
+- Feel: generous spacing, clean and minimal, real hiking and cycling photos where available.
 - Define colors and fonts once as CSS variables (E3-1). Every page uses them.
 
 ## Testing strategy
@@ -176,13 +189,14 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 
 Content lives in typed data files in `frontend/src/data/`. No database.
 
-**E4-1: Home.** Name, tagline, photo, short intro, links to Portfolio and chat.
-- AC: renders from data file; component test; no layout shift on load.
-- Depends on: E3-2. Owner: Claude builds, Michelle supplies tagline and photo.
+**E4-1: Home.** Name, tagline, short intro, link to Portfolio. No photo on Home (Michelle's choice); the chat link moves to E6-1.
+- AC: renders from data file; component test; layout shift on load within Google's "good" range (CLS under 0.1), measured in a real browser.
+- Depends on: E3-2. Owner: Claude builds, Michelle supplies tagline.
 
 **E4-2: About.** Personal story, skills, and the hiking and cycling side.
 - AC: renders from data file; component test; images have alt text.
 - Depends on: E3-2. Owner: Claude builds, Michelle supplies copy and photos.
+- Candidate photo: `IMG_2840.JPG` on Jira E4-1 (vineyard). See the E4-1 progress log for crop settings.
 
 **E4-3: Career.** Timeline of roles and education.
 - AC: entries render in order from a data file; component test with sample entries.
@@ -224,6 +238,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E6-1: Floating button and panel.** Button on every page opens a chat panel.
 - AC: present on all 5 routes; opens and closes by mouse and keyboard; focus moves into the panel and returns on close; component tests.
+- AC: Home page links to the chat (moved here from E4-1).
 - Depends on: E3-2. Owner: Claude.
 
 **E6-2: Wire chat to the API.** Send messages, show loading indicator, show replies as plain text, show a friendly error.
@@ -404,3 +419,15 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Tests use `@testing-library/user-event`: starts closed, click toggles, keyboard Tab and Enter opens, link click closes and navigates. jsdom ignores CSS, so hiding is checked in the browser instead.
   - Browser check at 375px: no horizontal scroll before or after. Header height 156px (links wrapped onto two lines) down to 77px closed. Tap targets 20px up to 44px. At 1280px the nav looks as before.
   - Follow-ups: after a link click on mobile, focus falls to the body; footer side padding on phones (32px) no longer matches the header (16px).
+
+- **E3-3 moved to Done in Jira** after PR #15 merged.
+- **E4-1 Home: Done (PR pending).**
+  - `src/data/home.ts` holds the typed content (title, mission, tags, intro, portfolio link). The name comes from `VITE_SITE_NAME`. `src/Home.tsx` renders it and replaces the Home placeholder in `pages.tsx`.
+  - Tagline split into the title (accent), the mission (heading font), and Analytics, Snowflake and AI as mono tags (`.tags`, reusable by Portfolio). Portfolio link styled as a 44px `.button`.
+  - `routes.test.tsx` now checks the nav label heading only on placeholder pages; Home has its own test. Shrink the filter as each E4 page lands.
+  - Photo removed from Home at Michelle's request (may go on About). If reused: the original carries GPS data (14 EXIF GPS fields, proven with Pillow), so process it with Pillow via `uv run --with pillow`: `exif_transpose`, convert Display P3 to sRGB, crop square at x=150, y=300, side 2600, resize to 512px, WebP quality 80 (about 78 KB, no metadata).
+  - Layout shift measured in Chromium with a `layout-shift` PerformanceObserver: Home 0.026 at 375px, 0.0003 at 1280px; Career also shifts. Root cause proven by delaying `.woff2` files 1s: the shift moves with font arrival (about 1050ms vs 50ms), 8 of 8 runs. It is the Fontsource `font-display: swap` rewrap, site-wide since E3-1. Accepted as within the "good" range. Fix if needed later: size-matched fallback fonts (`size-adjust`).
+  - Palette switched from dark navy to light **Desert Sand** (see Visual theme), chosen from samples in `docs/palette-samples.html` after trying Alpine Stone on the real site. Alpine Stone is saved in the Visual theme table for a quick switch.
+  - Removed the `sunset` and `sage` text tokens (one blue accent now). Added decorative `sky-1` to `sky-4` tokens for a 3px gradient hairline under the header (`border-image`). An SVG mountain band was tried and dropped for a sleeker tech feel. Contrast test now also checks button text (`bg` on `accent`).
+  - Intro is larger and softer: Inter at 1.125rem, line height 1.65, muted colour.
+  - Verified: axe 4.10.3 finds 0 WCAG A/AA violations on all 6 routes at 375px and 1280px (mobile menu open on Home). CLS on Home 0.026 at 375px, 0.002 at 1280px.
