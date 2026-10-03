@@ -185,6 +185,27 @@ main {
   color: var(--color-text-muted);
 }
 
+.about {
+  max-width: 44rem;
+}
+
+.about h1 {
+  margin: 0 0 var(--space-4);
+  font-size: 2.5rem;
+}
+
+.about h2 {
+  margin: var(--space-6) 0 var(--space-3);
+  font-size: 1.5rem;
+}
+
+.about p {
+  margin: 0 0 var(--space-3);
+  font-size: 1.125rem;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;

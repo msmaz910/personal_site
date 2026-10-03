@@ -14,6 +14,15 @@ Intrinsically motivated analytics engineer (SQL, R, Python) with a successful hi
 - Data Modeling
 - DBT
 - Visual Studio
+- Snowflake
+- Machine Learning
+- AI Engineering
+- Tableau
+- Power BI
+- Excel
+- R
+- Python
+- SQL
 
 ## Certifications
 
