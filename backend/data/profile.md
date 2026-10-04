@@ -148,7 +148,7 @@ Company names are intentionally left out of these case studies.
 - **Customer Health Score** (product analytics SaaS company; SQL, R, Statistics): Built a multi-variable health score with a statistically significant correlation to renewal, then turned early-warning signals into an automated trigger system.
 - **Customer Success Metrics Dashboard** (product analytics SaaS company; SQL, Tableau): Built the team's operating metrics dashboard end to end, from SQL queries to Tableau, plus monthly churn and NPS reporting for executives.
 - **Automated Executive Reporting** (national HR services company; SQL, Power BI, Power Automate): Multi-source dashboards for senior leaders with database-to-dashboard refreshes automated in Power Automate, plus capacity models that forecast team demand.
-- **Machine Learning on AI Prompts** (national HR services company; Python, R, Machine Learning): Trained machine learning models on AI prompt data in Python and R to power advanced analysis across the business. Helped build the internal data pipelines and datasets that let research and development scale.
+- **Machine Learning on AI Prompts** (national HR services company; Python, Machine Learning): Trained machine learning models on AI prompt data in Python to power advanced analysis across the business. Helped build the internal data pipelines and datasets that let research and development scale.
 - **Expense Audit** (medical device company; Excel): Found $77K in billing waste and uncovered expense fraud that had gone undetected for seven months.
 
 ## About Me

@@ -62,8 +62,8 @@ export const portfolio: ProjectGroup[] = [
         title: 'Machine Learning on AI Prompts',
         context: 'National HR services company',
         description:
-          'Trained machine learning models on AI prompt data in Python and R to power advanced analysis across the business. Helped build the internal data pipelines and datasets that let research and development scale.',
-        tags: ['Python', 'R', 'Machine Learning'],
+          'Trained machine learning models on AI prompt data in Python to power advanced analysis across the business. Helped build the internal data pipelines and datasets that let research and development scale.',
+        tags: ['Python', 'Machine Learning'],
         links: [],
       },
       {
