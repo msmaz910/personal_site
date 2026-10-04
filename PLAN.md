@@ -443,3 +443,15 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Copy written in a polished, professional tone for recruiters, and approved by Michelle line by line.
   - `About.test.tsx` checks heading order and levels, every paragraph, and every skill against the data file. Proven to fail when a heading's case changes or a paragraph is dropped.
   - Browser check: no horizontal scroll at 375px, no console errors, layout clean at 1280px.
+
+- **E4-2 moved to Done in Jira** after PR #17 merged.
+- **E4-3 Career: Done (PR pending).**
+  - `src/data/career.ts` holds 11 roles (title, org, dates, highlights) and 3 degrees, newest first. The page renders them in file order, so order lives in the data. `src/Career.tsx` replaces the Career placeholder in `pages.tsx`.
+  - Flat list of roles (not grouped by company), so the Insperity return after Heap reads as its own entry. Locations left off, per the About privacy decision.
+  - Highlights: 2 to 4 per role, picked from Michelle's August 2026 resume and lightly tightened. Lehman Brothers and Executive Assistant are not on the resume, so they show title and dates only (remove later if they look odd). Degree names follow LinkedIn ("Art & Art History").
+  - Timeline look is CSS only: `.timeline` is an `<ol>` with a left border and an accent dot per entry. `.career` shares the About width and heading styles.
+  - `Career.test.tsx` checks heading order and levels, each role's org, dates and highlights, and education, all against the data file. Proven to fail when two roles swap.
+  - Browser check: no horizontal scroll at 375px, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations, layout clean at 1280px.
+  - `profile.md` updated from the resume so the chat knows the same details: new bullets (Director, Senior Salesforce, Heap, Dynasplint, Barclays), corrected dates, cert date, and a Leadership and Volunteer section. The resume itself (home address and phone) was moved out of the repo to `~/Documents`.
+  - Review: three reviewer agents found no significant issues. Fixed: `routes.test.tsx` now picks placeholder pages by their `Placeholder` element, so the list shrinks as pages land; `profile.md` titles match the page.
+  - Follow-up (sitewide): Safari/VoiceOver drops list semantics when `list-style: none` is set. Add `role="list"` to `.timeline` and `.tags` lists in one pass.

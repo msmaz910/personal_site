@@ -1,9 +1,10 @@
 import { screen } from '@testing-library/react'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { pages } from './pages.tsx'
+import Placeholder from './Placeholder.tsx'
 import { renderAt } from './test/renderAt.tsx'
 
-const placeholderPages = pages.filter(({ path }) => path !== '/')
+const placeholderPages = pages.filter(({ element }) => element.type === Placeholder)
 
 beforeEach(() => {
   vi.stubEnv('VITE_SITE_NAME', 'Test Site')
