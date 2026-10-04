@@ -455,3 +455,17 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `profile.md` updated from the resume so the chat knows the same details: new bullets (Director, Senior Salesforce, Heap, Dynasplint, Barclays), corrected dates, cert date, and a Leadership and Volunteer section. The resume itself (home address and phone) was moved out of the repo to `~/Documents`.
   - Review: three reviewer agents found no significant issues. Fixed: `routes.test.tsx` now picks placeholder pages by their `Placeholder` element, so the list shrinks as pages land; `profile.md` titles match the page.
   - Follow-up (sitewide): Safari/VoiceOver drops list semantics when `list-style: none` is set. Add `role="list"` to `.timeline` and `.tags` lists in one pass.
+
+- **E4-3 moved to Done in Jira** after PR #18 merged.
+- **E4-4 Portfolio: Done (PR pending).**
+  - `src/data/portfolio.ts` holds two groups, Personal Projects (this website) and Work Case Studies (5), each project with title, context line, description, tags and links. `src/Portfolio.tsx` renders them as cards and replaces the Portfolio placeholder.
+  - Headings: `h1` Portfolio, `h2` per group, `h3` per card. Grouping explains why only the website card has a link.
+  - Case studies name the industry, not the company (Michelle's choice). Text only, no images. The website card links to its GitHub source in the same tab, like the footer links.
+  - **Before merge: Michelle makes `msmaz910/personal_site` public** so the link works. Full git history checked first: no real secrets (only the `.env.example` placeholder key), no phone or address, no photos.
+  - Cards use `--color-surface` with a border; tag pills switch to `--color-bg` inside cards so they stay visible. The industry line shares the `.timeline-meta` style. `.portfolio` shares the About and Career width and headings.
+  - `Portfolio.test.tsx` checks heading order and levels, each card's context, description and tags, and that each card has exactly its links with no `target`. Proven to fail when cards are reversed or a link opens in a new tab.
+  - Safari follow-up done sitewide: `role="list"` on every list with `list-style: none` (header, footer, `.tags`, `.timeline`, `.cards`, style guide).
+  - `profile.md` gained a Portfolio section with the same anonymized case studies, so the chat can discuss them.
+  - Browser check: no horizontal scroll at 375px, 44px link tap target, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations on Home, About, Career, Portfolio and Contact.
+  - Review: three reviewer agents found no significant issues. Fixed: the card industry line shares only colour and font with `.timeline-meta` (its margin was overridden anyway), and groups use a keyed `Fragment` instead of an unnamed `<section>`.
+  - Follow-up for E7-1: card links and footer links use the browser's default focus ring; give them the accent `:focus-visible` outline used by nav links and `.button`.
