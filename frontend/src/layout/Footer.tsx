@@ -7,7 +7,7 @@ function Footer() {
       <p>
         &copy; {year} {import.meta.env.VITE_SITE_NAME}
       </p>
-      <ul>
+      <ul role="list">
         <li>
           <a href={import.meta.env.VITE_LINKEDIN_URL}>LinkedIn</a>
         </li>

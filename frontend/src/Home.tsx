@@ -10,7 +10,7 @@ function Home() {
       <h1>{import.meta.env.VITE_SITE_NAME}</h1>
       <p className="home-title">{title}</p>
       <p className="home-mission">{mission}</p>
-      <ul className="tags" aria-label="Focus areas">
+      <ul className="tags" role="list" aria-label="Focus areas">
         {tags.map((tag) => (
           <li key={tag}>{tag}</li>
         ))}

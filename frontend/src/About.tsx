@@ -12,7 +12,7 @@ function About() {
       ))}
 
       <h2>Core Skills</h2>
-      <ul className="tags" aria-label="Core skills">
+      <ul className="tags" role="list" aria-label="Core skills">
         {skills.map((skill) => (
           <li key={skill}>{skill}</li>
         ))}

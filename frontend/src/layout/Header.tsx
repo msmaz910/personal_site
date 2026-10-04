@@ -24,7 +24,7 @@ function Header() {
         </svg>
       </button>
       <nav aria-label="Main">
-        <ul id="main-menu">
+        <ul id="main-menu" role="list">
           {pages.map(({ path, label }) => (
             <li key={path}>
               <NavLink to={path} onClick={() => setOpen(false)}>

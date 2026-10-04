@@ -135,6 +135,22 @@ May 2007 - November 2008.
 - **Executives on Campus (EOC), Baruch College** (mentee, starting October 2013): Accepted as a mentee into Baruch's EOC program, which pairs executives with promising business school students
 - **iMentor, Volunteer Mentor** (September 2010 - June 2011): Served as a mentor to high school students in low-income and underserved communities; leveraged business and life experience to help students prepare for college and improve likelihood of high school graduation
 
+## Portfolio
+
+### Personal Projects
+
+- **This Website** (personal site and AI chat; source at https://github.com/msmaz910/personal_site): A personal site with an AI chat that answers questions about Michelle's career from a single profile file. React and TypeScript front end, Python FastAPI backend, shipped as one Docker container on Vercel with GitHub Actions CI and tests on every change.
+
+### Work Case Studies
+
+Company names are intentionally left out of these case studies.
+
+- **Customer Health Score** (product analytics SaaS company; SQL, R, Statistics): Built a multi-variable health score with a statistically significant correlation to renewal, then turned early-warning signals into an automated trigger system.
+- **Customer Success Metrics Dashboard** (product analytics SaaS company; SQL, Tableau): Built the team's operating metrics dashboard end to end, from SQL queries to Tableau, plus monthly churn and NPS reporting for executives.
+- **Automated Executive Reporting** (national HR services company; SQL, Power BI, Power Automate): Multi-source dashboards for senior leaders with database-to-dashboard refreshes automated in Power Automate, plus capacity models that forecast team demand.
+- **Machine Learning on AI Prompts** (national HR services company; Python, Machine Learning): Trained machine learning models on AI prompt data in Python to power advanced analysis across the business. Helped build the internal data pipelines and datasets that let research and development scale.
+- **Expense Audit** (medical device company; Excel): Found $77K in billing waste and uncovered expense fraud that had gone undetected for seven months.
+
 ## About Me
 
 Michelle is originally from Westchester County, New York and currently lives in Pensacola, Florida with her husband and their three Yorkies. She's also lived in San Diego, California (where she met her husband). She doesn't miss the snow in New York and is happy to put up with the very hot and humid Florida panhandle summers. She also likes living in Florida because it is close to her parents and it's a place people always want to come visit!

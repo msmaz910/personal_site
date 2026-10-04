@@ -9,7 +9,7 @@ function Career() {
       <h1>Career</h1>
 
       <h2>Experience</h2>
-      <ol className="timeline" aria-label="Experience">
+      <ol className="timeline" role="list" aria-label="Experience">
         {roles.map(({ title, org, dates, highlights }) => (
           <li key={title}>
             <h3>{title}</h3>
@@ -28,7 +28,7 @@ function Career() {
       </ol>
 
       <h2>Education</h2>
-      <ol className="timeline" aria-label="Education">
+      <ol className="timeline" role="list" aria-label="Education">
         {education.map(({ degree, school, dates }) => (
           <li key={degree}>
             <h3>{degree}</h3>
