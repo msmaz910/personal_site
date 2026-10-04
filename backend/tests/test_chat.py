@@ -7,7 +7,13 @@ import pytest
 from fastapi.testclient import TestClient
 from openai import APIConnectionError
 
-from app.chat import OPENROUTER_BASE_URL, UNAVAILABLE_MESSAGE, get_client
+from app.chat import (
+    FALLBACK_REPLY,
+    OPENROUTER_BASE_URL,
+    UNAVAILABLE_MESSAGE,
+    get_client,
+)
+from app.cleaning import MAX_REPLY_CHARS
 from app.config import Settings, get_settings
 from app.main import app
 from app.prompts import build_system_prompt, load_profile
@@ -101,3 +107,28 @@ def test_upstream_failure_returns_clean_502(fake):
     assert response.json() == {"detail": UNAVAILABLE_MESSAGE}
     assert "Traceback" not in response.text
     assert "SECRET-DETAIL" not in response.text
+
+
+def test_chat_returns_only_cleaned_text(fake):
+    fake.reply = "<think>plan</think><b>Hi</b><script>alert(1)</script>"
+
+    assert post_chat(HISTORY).json() == {"reply": "Hi"}
+
+
+def test_chat_caps_oversized_reply(fake):
+    fake.reply = "word " * 400
+
+    reply = post_chat(HISTORY).json()["reply"]
+
+    assert len(reply) <= MAX_REPLY_CHARS
+    assert reply.endswith("…")
+
+
+@pytest.mark.parametrize("raw", [None, "<think>only reasoning</think>"])
+def test_empty_reply_returns_fallback(fake, raw):
+    fake.reply = raw
+
+    response = post_chat(HISTORY)
+
+    assert response.status_code == 200
+    assert response.json() == {"reply": FALLBACK_REPLY}
