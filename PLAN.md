@@ -232,6 +232,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E5-4: Response cleaning.** Pure function that strips reasoning blocks, HTML and script tags, and applies a length cap.
 - AC: unit tests for each case (reasoning block, script tag, oversized reply, normal reply unchanged); `/api/chat` returns only cleaned text.
+- Decisions (approved by Michelle): cap is 1200 characters including a trailing "…", cut at a full word; unclosed `<think>`, `<script>`, `<style>` are dropped to the end; text before a stray `</think>` is dropped; markdown and HTML entities are kept; an empty result returns a friendly fallback reply.
 - Depends on: E5-3. Owner: Claude.
 
 **E5-5: Input limits.** Cap message length, number of messages sent, reply tokens, and total user messages per chat using env settings.
@@ -250,6 +251,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 **E6-2: Wire chat to the API.** Send messages, show loading indicator, show replies as plain text, show a friendly error.
 - AC: with the API mocked, a sent message shows a loading state then the reply; a failed request shows an error message; history sent is capped; component tests.
 - AC: the panel counts user messages; at `MAX_USER_MESSAGES` it shows the closing message returned by the backend and disables the input; component test covers it.
+- Replies must render as text (React text nodes), never as HTML (`dangerouslySetInnerHTML`). E5-4 strips tags in one pass and keeps HTML entities, so it is a second layer, not the only one.
 - Depends on: E6-1, E5-3. Owner: Claude.
 
 **E6-3: Suggested starter questions.** A few clickable prompts shown when the chat is empty.

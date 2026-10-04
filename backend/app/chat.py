@@ -6,12 +6,17 @@ from typing import Literal
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
+from app.cleaning import clean_reply
 from app.config import Settings, get_settings
 from app.prompts import build_system_prompt, load_profile
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 UNAVAILABLE_MESSAGE = (
     "The chat is unavailable right now. Please try again later, "
+    "or reach Michelle by email or on LinkedIn."
+)
+FALLBACK_REPLY = (
+    "I'm not sure how to answer that. Please try rephrasing, "
     "or reach Michelle by email or on LinkedIn."
 )
 
@@ -47,7 +52,10 @@ def get_client() -> OpenAI:
 
 
 def get_reply(client: OpenAI, settings: Settings, messages: list[Message]) -> str:
-    """Send the system prompt and conversation to the model and return its reply."""
+    """Send the system prompt and conversation to the model; return the cleaned reply.
+
+    Falls back to FALLBACK_REPLY when nothing is left after cleaning.
+    """
     system = {"role": "system", "content": build_system_prompt(load_profile())}
     history = [message.model_dump() for message in messages]
     completion = client.chat.completions.create(
@@ -55,4 +63,4 @@ def get_reply(client: OpenAI, settings: Settings, messages: list[Message]) -> st
         messages=[system, *history],
         max_tokens=settings.max_reply_tokens,
     )
-    return completion.choices[0].message.content
+    return clean_reply(completion.choices[0].message.content) or FALLBACK_REPLY
