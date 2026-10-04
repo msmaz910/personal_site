@@ -1,10 +1,10 @@
-"""Tests for loading the profile used in the chat system prompt."""
+"""Tests for loading the profile and building the chat system prompt."""
 
 import re
 
 import pytest
 
-from app.prompts import PROFILE_PATH, load_profile
+from app.prompts import PROFILE_PATH, RULES, build_system_prompt, load_profile
 
 
 def test_load_profile_returns_file_contents(tmp_path):
@@ -23,3 +23,20 @@ def test_load_profile_missing_file_names_the_path(tmp_path):
 
 def test_default_profile_path_exists():
     assert PROFILE_PATH.is_file()
+
+
+def test_system_prompt_includes_profile():
+    prompt = build_system_prompt("Led the analytics team at Example Co.")
+
+    assert "Led the analytics team at Example Co." in prompt
+
+
+@pytest.mark.parametrize("rule", RULES)
+def test_system_prompt_includes_every_rule(rule):
+    assert rule in build_system_prompt("profile text")
+
+
+def test_rules_come_before_profile():
+    prompt = build_system_prompt("SAMPLE-PROFILE")
+
+    assert prompt.index(RULES[-1]) < prompt.index("SAMPLE-PROFILE")
