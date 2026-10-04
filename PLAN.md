@@ -194,9 +194,14 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - Depends on: E3-2. Owner: Claude builds, Michelle supplies tagline.
 
 **E4-2: About.** Personal story, skills, and the hiking and cycling side.
-- AC: renders from data file; component test; images have alt text.
-- Depends on: E3-2. Owner: Claude builds, Michelle supplies copy and photos.
-- Candidate photo: `IMG_2840.JPG` on Jira E4-1 (vineyard). See the E4-1 progress log for crop settings.
+- AC: renders from data file; component test; images have alt text (not applicable: text-only page).
+- Depends on: E3-2. Owner: Claude builds, Michelle supplies copy.
+- Copy source: Claude drafts first-person copy from `backend/data/profile.md`; Michelle approves.
+- **Decisions (2026-10-03):**
+  1. **Skills list.** Michelle added skills to `profile.md` "Top Skills". The page shows 11 (Visual Studio dropped as an editor, not a skill).
+  2. **Privacy.** Middle ground: "Florida panhandle" not Pensacola; husband and three Yorkies without names or backstory; parents left out; hobbies and the Bills kept.
+  3. **Photos.** None for now; text-only like Home.
+- Related (Michelle's file): add Snowflake and AI experience to `profile.md` so the chat can answer questions about the Home tags.
 
 **E4-3: Career.** Timeline of roles and education.
 - AC: entries render in order from a data file; component test with sample entries.
@@ -431,3 +436,10 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Removed the `sunset` and `sage` text tokens (one blue accent now). Added decorative `sky-1` to `sky-4` tokens for a 3px gradient hairline under the header (`border-image`). An SVG mountain band was tried and dropped for a sleeker tech feel. Contrast test now also checks button text (`bg` on `accent`).
   - Intro is larger and softer: Inter at 1.125rem, line height 1.65, muted colour.
   - Verified: axe 4.10.3 finds 0 WCAG A/AA violations on all 6 routes at 375px and 1280px (mobile menu open on Home). CLS on Home 0.026 at 375px, 0.002 at 1280px.
+
+- **E4-2 About: Done (PR pending).**
+  - `src/data/about.ts` holds the typed content: two story paragraphs, 11 skills, and titled sections (Currently Learning, Beyond Work). `src/About.tsx` renders it and replaces the About placeholder in `pages.tsx`.
+  - One `h1` ("About") with the story directly under it, then `h2` headings in title case. Skills reuse the `.tags` style from Home. New `.about` styles cap the text at 44rem and match the Home intro text.
+  - Copy written in a polished, professional tone for recruiters, and approved by Michelle line by line.
+  - `About.test.tsx` checks heading order and levels, every paragraph, and every skill against the data file. Proven to fail when a heading's case changes or a paragraph is dropped.
+  - Browser check: no horizontal scroll at 375px, no console errors, layout clean at 1280px.
