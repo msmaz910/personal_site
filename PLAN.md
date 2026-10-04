@@ -469,3 +469,12 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Browser check: no horizontal scroll at 375px, 44px link tap target, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations on Home, About, Career, Portfolio and Contact.
   - Review: three reviewer agents found no significant issues. Fixed: the card industry line shares only colour and font with `.timeline-meta` (its margin was overridden anyway), and groups use a keyed `Fragment` instead of an unnamed `<section>`.
   - Follow-up for E7-1: card links and footer links use the browser's default focus ring; give them the accent `:focus-visible` outline used by nav links and `.button`.
+
+- **E4-4 moved to Done in Jira** after PR #19 merged. `msmaz910/personal_site` is now public.
+- **E4-5 Contact: Done (PR pending).**
+  - `src/Contact.tsx` shows an `h1`, a short intro from `src/data/contact.ts`, and three buttons whose targets come from `VITE_CONTACT_EMAIL` (as `mailto:`), `VITE_LINKEDIN_URL` and `VITE_GITHUB_URL`, read at render time so tests can stub them. Same tab, no mailto subject, no email obfuscation (the address is already public).
+  - "Email me" is the filled primary `.button`; LinkedIn and GitHub use a new outline `.button-secondary` (inset box-shadow keeps all three at 44px and the same focus ring). One accent colour only.
+  - Intro copy approved by Michelle, worded so colleagues don't read it as a job search.
+  - `Contact.test.tsx` stubs the three variables, scopes queries to `main` (the footer repeats LinkedIn and GitHub), and checks the heading, intro, link order and each link's href with no `target`. Proven to fail when the order changes or `mailto:` is dropped.
+  - Contact was the last placeholder: `Placeholder.tsx` and its routes test block are deleted (proven to have silently run zero tests once Contact landed).
+  - Browser check: real env targets, 44px buttons, no horizontal scroll at 375px (GitHub wraps to a second row), focus ring visible, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations.
