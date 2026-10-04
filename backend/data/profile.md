@@ -1,6 +1,6 @@
 # Michelle Lewis, MBA
 
-Director, Data Science Enterprise Analytics at Insperity. Based in Pensacola, Florida, United States.
+Director, Data Science & Enterprise Analytics at Insperity. Based in Pensacola, Florida, United States.
 
 - Email: michelle.mazzotta@gmail.com
 - LinkedIn: www.linkedin.com/in/mmazzotta
@@ -26,21 +26,31 @@ Intrinsically motivated analytics engineer (SQL, R, Python) with a successful hi
 
 ## Certifications
 
-- Salesforce Certified Administrator (SCA)
+- Salesforce Certified Administrator (SCA), obtained December 2024
 - Code Foundations Skill Path (Codecademy)
 
 ## Experience
 
 ### Insperity
 
-**Director, Data Science Enterprise Analytics**
-December 2024 - Present. Penscola, Florida, United States.
+**Director, Data Science & Enterprise Analytics**
+December 2024 - Present. Pensacola, Florida, United States.
+- Leads planning and execution of analytics initiatives across Sales, Marketing, Service Operations, Product, and IT
+- Collaborates on data science, machine learning, and AI initiatives across the company
+- Trains machine learning models on AI prompts for advanced analysis using Python and R
+- Supports development of internal data pipelines and datasets designed to aid in scaling R&D
+- Provides training, education, and consultation to business teams to optimize acceptance and understanding of insights
+- Develops leadership and technical skills of direct reports and data champions throughout the organization
 
 **Senior Salesforce Reporting Administrator, Enterprise Analytics**
 December 2023 - December 2024. San Diego, California, United States.
+- Designed and developed multi-source Salesforce CRM Analytics dashboards for senior and executive leadership
+- End-to-end ad hoc analysis including development of SQL queries and statistical analysis in R
+- Built and managed custom recipes in Salesforce CRM Analytics
+- Cultivated data champions across various departments
 
 **Analytics & Reporting Manager, Insights & Analytics**
-October 2018 - June 2022. Greater San Diego Area.
+October 2018 - May 2022. Greater San Diego Area.
 - Designed and compiled advanced multi-source dashboards and reporting packages for senior and executive leadership
 - Built and deployed workflows via Power Automate for database to dashboard automated refreshes
 - Created and monitored capacity models for visibility into current team workloads and forecasted future demand
@@ -48,22 +58,23 @@ October 2018 - June 2022. Greater San Diego Area.
 - Quantitative and statistical analysis of support queue and customer success data for process improvement
 
 **Customer Success Manager**
-July 2016 - October 2018. Greater San Diego Area.
-- Managed customer relationship for 250 assigned clients primarily in the middle market and enterprise space
+June 2016 - October 2018. Greater San Diego Area.
+- Managed customer relationship for 250 assigned clients primarily in the strategic and enterprise space
 - Owned client relationship for largest organizational planning customer and their use of the tool for M&A transactions
 - Assisted clients with software related inquiries (functionality, process and workflow review, data analysis)
-- Knowledge of Insperity Time & Attendance and OrgPlus used to enhance client experience and business processes
+- Knowledge of TimeStar, OrgPlus, and ExpensAble used to enhance client experience and business processes
 - Prepared change order documentation and statements of work for customers and ensured transition to project team
 
 ### Heap
 
 **Customer Success Operations Manager**
-June 2022 - December 2023. San Diego, California, United States.
-- Built Customer Success operating metrics dashboard end to end (SQL queries through Tableau configuration)
-- Created multi-input customer health score variable with statistically significant correlation coefficient vs. renewal
+June 2022 - November 2023. San Diego, California, United States.
+- Built Customer Success operating metrics dashboard end to end (SQL queries through Tableau visualizations)
+- Created multi-variable customer health score with statistically significant correlation coefficient vs. renewal
 - Responsible for monthly and quarterly churn reporting, analysis, and presentations for executive leads
-- Built all NPS database queries, reporting, analysis, and quarterly recommendations for executive leadership
-- Established "Customer Journey" with milestone and duration tracking
+- Wrote all NPS database queries, reporting, analysis, and quarterly recommendations for executive leadership
+- Led quantitative and statistical analysis of account early warning signs leading to creation of trigger system
+- Established "Customer Journey" with milestone and duration tracking to ensure value realization and ROI
 
 ### Intrepid Financial Partners
 
@@ -89,15 +100,22 @@ December 2013 - March 2016. New York, New York.
 
 **Financial Analyst**
 December 2011 - December 2013. New York, New York.
+- Worked in conjunction with CFO to create all monthly and quarterly financial statements
+- Prepared monthly and quarterly sales reports to support senior management decision making
+- Implemented new company wide expense management program (425 users), saving $65K in annual processing fees
+- Analyzed monthly technology and shipping bills for accuracy and potential waste, discovered $77K in waste in 2012
+- Reviewed and processed employee expense reimbursement requests totaling more than $2M per year; uncovered expense fraud that went undetected for seven months
 
 **Executive Assistant to VP Sales & Marketing**
 December 2008 - July 2010. San Diego, California.
 
 ### Barclays Capital
 
-**Data Specialist**
+**Data Specialist, Investment Banking Real Estate**
 August 2010 - December 2011. New York, New York.
-Data Specialist with the IBD Real Estate team.
+- Prepared and analyzed regional and global revenue reports for the real estate team
+- Monitored deal staffing on existing and prospective deal projects to ensure the integrity of revenue allocation
+- Maintained US team deal pipeline and estimated fee spreadsheet
 
 ### Lehman Brothers
 
@@ -110,6 +128,12 @@ May 2007 - November 2008.
 - State University of New York at New Paltz: BS, Education, Liberal Arts (2005 - 2007)
 - Manhattanville College: BFA, Art & Art History (2002 - 2005)
 - Trailhead by Salesforce
+
+## Leadership and Volunteer Activities
+
+- **E-Mentor, United Way of Orange County** (December 2020 - May 2021): Served as a mentor to a high school student in an underserved community; leveraged business and life experience to help her apply to and prepare for attendance at community college
+- **Executives on Campus (EOC), Baruch College** (mentee, starting October 2013): Accepted as a mentee into Baruch's EOC program, which pairs executives with promising business school students
+- **iMentor, Volunteer Mentor** (September 2010 - June 2011): Served as a mentor to high school students in low-income and underserved communities; leveraged business and life experience to help students prepare for college and improve likelihood of high school graduation
 
 ## About Me
 
