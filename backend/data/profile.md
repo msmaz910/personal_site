@@ -37,7 +37,7 @@ Intrinsically motivated analytics engineer (SQL, R, Python) with a successful hi
 December 2024 - Present. Pensacola, Florida, United States.
 - Leads planning and execution of analytics initiatives across Sales, Marketing, Service Operations, Product, and IT
 - Collaborates on data science, machine learning, and AI initiatives across the company
-- Trains machine learning models on AI prompts for advanced analysis using Python and R
+- Trains machine learning models on AI prompts for advanced analysis using Python
 - Supports development of internal data pipelines and datasets designed to aid in scaling R&D
 - Provides training, education, and consultation to business teams to optimize acceptance and understanding of insights
 - Develops leadership and technical skills of direct reports and data champions throughout the organization
