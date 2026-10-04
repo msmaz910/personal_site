@@ -3,9 +3,8 @@
 import pytest
 from openai import OpenAI
 
+from app.chat import OPENROUTER_BASE_URL
 from app.config import get_settings
-
-OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 
 @pytest.mark.live
