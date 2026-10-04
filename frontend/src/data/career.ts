@@ -25,7 +25,7 @@ export const career: CareerContent = {
       dates: 'Dec 2024 - Present',
       highlights: [
         'Lead analytics planning and delivery across Sales, Marketing, Service Operations, Product, and IT',
-        'Partner on data science, machine learning, and AI initiatives company-wide, building models in Python',
+        'Partner on data science, machine learning, and AI initiatives company-wide, building models in Python and R',
         'Develop the leadership and technical skills of direct reports and data champions across the organization',
       ],
     },
