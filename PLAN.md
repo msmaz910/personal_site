@@ -246,6 +246,11 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - Closing message (backend is the only source): "Thank you for the great conversation! I've reached the limit for this chat, but Michelle would be glad to answer anything else. You can contact her at michelle.mazzotta@gmail.com or on LinkedIn."
 - Depends on: E5-3. Owner: Claude.
 
+**E5-6: Chat answer polish.** Fix content issues found in live answers during E6-3.
+- AC: the system prompt tells the model not to use markdown formatting (such as `**` or `#`) and not to invite visitors to discuss job opportunities (pointing to email or LinkedIn for anything else is still fine); "Visual Studio" is removed from Top Skills in `profile.md`; unit tests confirm the new rules appear in the prompt; a live check of the four starter questions shows no markdown and no job-search invitation.
+- Decisions (2026-10-05, Michelle): fix markdown with a prompt rule only (cleaning keeps markdown, per E5-4). "Pensacola" stays in the profile.
+- Depends on: E5-2, E6-3. Owner: Claude (Michelle edits `profile.md` or approves the edit).
+
 ### E6 Chat frontend
 
 **E6-1: Chat card and header chat button.** The chat is visible on every page.
@@ -262,6 +267,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E6-3: Suggested starter questions.** A few clickable prompts shown when the chat is empty.
 - AC: clicking a suggestion sends it; suggestions hide after the first message; component test.
+- Decisions (2026-10-05, Michelle): four questions, in this order: "What's her current role?" (shortened from "What does Michelle do in her current role?", which wrapped to two lines), "What's her career goal?", "How did she get into analytics?", "What skills does she have?". They live in `frontend/src/data/chat.ts`. Outlined buttons, stacked above the text box. They show only while the chat is empty and nothing is waiting, so they also stay hidden after a reload with a saved conversation.
 - Depends on: E6-2. Owner: Claude builds, Michelle approves the questions.
 
 ### E7 Launch
@@ -542,3 +548,13 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Tests: `setup.ts` unstubs globals after each test. `ChatConversation.test.tsx` fakes `fetch` and covers the request body, the waiting state, Send and focus, plain text, the friendly and generic errors, the limit lock with focus, reload persistence without stealing focus, keyboard reach, and scrolling (with `scrollHeight` and `offsetTop` faked to model hidden content). Proven to fail when replies render as HTML, the question is not restored, the history is trimmed, the limit is ignored, focus stays on the disabled box, scrolling always goes to the bottom, or the panel does not scroll when opened. 73 tests pass.
   - Browser check against the real backend: a real reply in 3.3 s, dots and disabled Send while waiting, reload keeps the conversation, the backend stopped shows the generic error with the question back in the box. With faked replies: long replies scroll to their start, the closing reply on a phone moves focus to the conversation and Escape still closes, and a reload does not move focus. axe 4.10.3 found that the conversation could not be scrolled by keyboard (`scrollable-region-focusable`); fixed, now 0 WCAG A/AA violations at 375 and 1280px.
   - Review: three reviewer agents. Fixed: focus was lost when the closing reply disabled the box (reproduced in the browser: focus on `body`, Escape stopped working on phones). Approved by Michelle: replies scroll to their start instead of the bottom.
+- **E6-2 moved to Done in Jira** after PR #28 merged.
+- **E6-3 Suggested starter questions: Done (PR pending).**
+  - `src/data/chat.ts`: `starterQuestions`, the four approved questions (decisions under the story).
+  - `ChatPanel`: outlined `button button-secondary` buttons in a `role="group"` labelled "Suggested questions", between the conversation and the error and form. Shown while `messages.length === 0 && asking === null`. `submit` and the new `pick` share `ask()`, extracted from `submit` with no behaviour change (73 existing tests stayed green). `pick` moves focus to the text box first, because the buttons unmount once the question is pending; a failure puts the question back only if the box is empty, so typed text is kept.
+  - Styles: `.chat-starters`, a column with left-aligned text. The 44px target and focus ring come from `.button`.
+  - Measured in the real font: the long first question was 327px for 288px of button text room (279px on phones), so it was shortened; all four now fit on one line.
+  - Tests: `StarterQuestions.test.tsx` covers order and placement, the click sending exactly that question with focus to the box, hiding while pending, after the reply, after a typed question and after a reload (with and without the limit), a failed click bringing them back with the question in the box, Enter and Space, and typed text surviving a click (success and failure). Proven to fail when shown while pending, shown with a conversation, focus is not moved, a failure overwrites typed text, a click clears typed text, or a `div` replaces the button. 84 tests pass.
+  - Browser check: 1280x800, 375x740 and 375x568: four 44px buttons on one line each, the conversation keeps 252, 362 and 190px, no horizontal scroll. Live answers to all four questions in 2.8 to 6.8 s, 61 to 120 words; afterwards the buttons are hidden and focus is in the box. axe 4.10.3: 0 WCAG A/AA violations on desktop and the phone chat.
+  - Live answers showed content issues (markdown asterisks, a job-search invitation, Visual Studio as a skill); Michelle chose to fix them in a new story, E5-6. "Pensacola" stays.
+  - Review: three reviewer agents found no issues in the code.
