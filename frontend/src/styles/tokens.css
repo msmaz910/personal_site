@@ -26,4 +26,9 @@
   --space-7: 4rem;
 
   --size-touch: 2.75rem;
+
+  --header-height: 4.5rem;
+  --chat-width: 26rem;
+  --chat-height: 40rem;
+  --shadow-card: 0 var(--space-1) var(--space-4) rgb(31 42 51 / 0.12);
 }

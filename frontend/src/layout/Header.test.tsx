@@ -68,6 +68,7 @@ test('menu opens from the keyboard', async () => {
 
   await user.tab()
   await user.tab()
+  await user.tab()
   expect(menuButton()).toHaveFocus()
 
   await user.keyboard('{Enter}')

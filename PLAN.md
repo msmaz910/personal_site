@@ -20,7 +20,7 @@ Vibe: outdoorsy hipster. Loves hiking and cycling, and is also proficient with c
 | Data | No database, no user accounts. Chat history lives in the browser only |
 | Chat knowledge | Whole profile file placed in the system prompt (no vector database) |
 | Pages | Home, About, Career, Portfolio, Contact. Shared header, footer, theme |
-| Chat UI | Floating button and panel on every page. Non-streaming: backend returns a cleaned reply |
+| Chat UI | Chat card in a right-hand column at 64rem and wider; below that an "AI Chat" header button opens it full screen. Non-streaming: backend returns a cleaned reply |
 | Tracking | Jira (tasks), GitHub (code, PRs, CI), both via MCP |
 
 Assumptions to revisit if wrong: chat answers only from the profile file; Contact page uses links and email (no form); repo is hosted on GitHub.
@@ -83,6 +83,7 @@ Current palette: **Desert Sand** (light, chosen in E4-1; replaced the original d
 - Type: Young Serif for headings (kept after previewing Inter bold, Space Grotesk and Plus Jakarta Sans), Inter for body (intro at 1.125rem, muted), JetBrains Mono for tags.
 - Feel: generous spacing, clean and minimal, real hiking and cycling photos where available.
 - Define colors and fonts once as CSS variables (E3-1). Every page uses them.
+- Layout: one desktop breakpoint at 64rem (in `index.css` and `useWideScreen.ts`), plus 40rem for the phone menu. Layout tokens: `--size-touch` 2.75rem, `--header-height` 4.5rem, `--chat-width` 26rem, `--chat-height` 40rem.
 
 ## Testing strategy
 
@@ -189,7 +190,7 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 
 Content lives in typed data files in `frontend/src/data/`. No database.
 
-**E4-1: Home.** Name, tagline, short intro, link to Portfolio (changed to "Learn More", linking to About, in E4-6). No photo on Home (Michelle's choice); the chat link moves to E6-1.
+**E4-1: Home.** Name, tagline, short intro, link to Portfolio (changed to "Learn More", linking to About, in E4-6). No photo on Home (Michelle's choice); no chat link (the chat is on screen by default on desktop and one tap away on phones, see E6-1).
 - AC: renders from data file; component test; layout shift on load within Google's "good" range (CLS under 0.1), measured in a real browser.
 - Depends on: E3-2. Owner: Claude builds, Michelle supplies tagline.
 
@@ -247,9 +248,9 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 ### E6 Chat frontend
 
-**E6-1: Floating button and panel.** Button on every page opens a chat panel.
-- AC: present on all 5 routes; opens and closes by mouse and keyboard; focus moves into the panel and returns on close; component tests.
-- AC: Home page links to the chat (moved here from E4-1).
+**E6-1: Chat card and header chat button.** The chat is visible on every page.
+- AC: at 64rem and wider the chat is a large card in a right-hand column on all 5 routes; below 64rem an "AI Chat" header button opens it full screen as a dialog with the page behind it inert; focus moves to the close button on open and returns to the header button on close; X and Escape close it; on desktop the card's top-right button minimizes it, the header "AI Chat" button restores it, focus moves to that button on minimize and back to the card on restore, and the choice is remembered for the tab session; component tests.
+- Decisions (2026-10-05, Michelle): the chat is the site's showcase, so it is prominent without taking away from the page. No Home link to the chat (replaces the AC moved from E4-1). Desktop: a sticky card in a right-hand column, sized to stand out but not fill the full height. Phones and tablets: a header button opens it full screen (chosen over an on-page section or a bottom bar). Heading "Ask my Digital Twin" (renamed from "Chat with my Digital Twin", which wrapped to two lines beside the minimize and close buttons: 321px of text in 274px on desktop and 267px on phones); the button says "AI Chat" so the phone header stays one row. The message box and Send button show now, disabled, and E6-2 enables them. This replaces an earlier floating-button design (see the log). Added the same day: desktop visitors can minimize the card (it hides and the page uses the full width; the header button brings it back), remembered for the tab session. Phones are unchanged.
 - Depends on: E3-2. Owner: Claude.
 
 **E6-2: Wire chat to the API.** Send messages, show loading indicator, show replies as plain text, show a friendly error.
@@ -513,3 +514,16 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `Home.test.tsx` now checks the literal "Learn More" and `/about` instead of reading `home.link`, so a wrong value in the data fails the test. Proven to fail against the old data.
   - `docs/palette-samples.html` sample button updated to match.
   - Browser check: "Learn More" opens About at 1280px and 375px, 44px tap target, no horizontal scroll at 375px, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations on Home.
+- **E4-6 moved to Done in Jira** after PR #26 merged.
+- **E6-1 Chat card and header chat button: Done (PR pending).**
+  - First version (a floating "Ask me" pill with a small auto-opening panel) was rejected after review in the browser: on phones the pill covered page text and sat below the footer, and on desktop it read as a small corner window. The chat is the site's showcase, so it was redesigned (decisions under the E6-1 story).
+  - `src/chat/ChatPanel.tsx`: heading "Ask my Digital Twin", a welcome line, and a message box and Send button that stay disabled until E6-2. Always mounted (`hidden` when closed), so E6-2's conversation will survive closing and resizing. `tabIndex={-1}` keeps focus in the panel when its text is clicked, so Escape still works (proven in the browser and by a test). Its top-right button has two roles: "Close chat" (X) when full screen, "Minimize chat" (underscore) when docked; one `onDismiss` and one `dismissRef`. CSS class `.chat-dismiss`.
+  - `src/layout/useWideScreen.ts`: `useSyncExternalStore` over `matchMedia('(width >= 64rem)')`. The same 64rem value is in `index.css`.
+  - `Layout` owns the phone `open` state and the desktop `minimized` state, with two handlers: `showChat` (opens on phones, restores on desktop) and `dismissChat` (closes or minimizes). Both use `flushSync`, then `focus()`: in a real browser, without it, restoring left focus on `body` because the card was still hidden. jsdom lets hidden elements take focus, so this was proven in the browser only. Below 64rem the chat is a full-screen `role="dialog"` and the header and page wrappers get `inert`. The X and Escape close it and return focus to the header button (`flushSync`, then `focus()`). Growing to 64rem closes it, so it never pops open again on its own after a resize.
+  - `Header`: "AI Chat" button with a chat icon (`aria-haspopup="dialog"`, `aria-controls`), rendered on phones always and on desktop only while the card is minimized, where it has no `aria-haspopup`. No `aria-expanded`: on desktop the button exists only while the panel is collapsed, so the value would always be false, and on phones `aria-haspopup="dialog"` covers it. "Chat with my Digital Twin" made the phone header wrap onto two rows (measured 357px of items in 343px), so the button says "AI Chat"; below 40rem the header gap is 8px and the button padding 16px, keeping one 79px row.
+  - Desktop: the header is sticky with a fixed `--header-height`, and the chat is a sticky card in a `--chat-width` column (384px card, up to `--chat-height` 40rem, shorter on short screens). The footer sits under the content column only. While minimized, `.page:has(> .chat-panel:not([hidden]))` no longer matches, so the page drops to one column.
+  - `src/layout/useMinimized.ts`: `chat-minimized` in `sessionStorage`, so minimized survives pages and reloads until the tab closes. No try/catch, per the no-defensive-programming rule. `test/setup.ts` clears `sessionStorage` before each test.
+  - CSS clean-up: `.button` now carries the button resets (`font`, `border`, `cursor`) and joins the shared focus-ring rule. New `.visually-hidden` utility for the message box label.
+  - Tests: `src/test/viewport.ts` fakes `matchMedia` with change listeners (`setWide()`), phone width by default. `ChatPanel.test.tsx` covers the button on all 5 routes, full-screen open with focus inside and the page inert, close and Escape with focus back, the same element after closing and across pages, the desktop card with no dialog or close button, the disabled message box, resizing both ways, and Escape after clicking text. Minimize tests: minimize with focus on the header button, restore with focus on the card, remembered across pages and a reload, a phone ignoring a remembered minimized state, and a minimized chat across resizes. Proven to fail without `inert`, the focus return, the resize close, `tabIndex`, the `sessionStorage` write, or `hidden` following `minimized`. 60 tests pass.
+  - Browser check: 375, 768, 1024, 1280 and 1920px. The card stays at 104px from the top while scrolling, nothing overlaps, no horizontal scroll, Tab cannot reach the page behind the phone chat, no console errors. axe 4.10.3 finds 0 WCAG A/AA violations on desktop (card docked and minimized) and with the phone chat open. Minimize at 1280px: content spans the full width, the header stays 72px, focus moves both ways, and minimized survives a reload.
+  - Review: three reviewer agents found no bugs. Fixed: the resize reopen, duplicated button resets and focus rule. Deferred to E6-2: a focus style for the message box once it is enabled. Minimize review: no bugs. Fixed: merged the close and minimize handlers into `dismissChat`, one `askButton` test helper, renamed `.chat-close` to `.chat-dismiss` and the ref to `dismissRef`. Not handled: focus drops to `body` if a resize hides the panel while it has focus.
