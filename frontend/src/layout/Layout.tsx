@@ -1,8 +1,9 @@
 import { Outlet } from 'react-router'
+import ChatWidget from './ChatWidget.tsx'
 import Footer from './Footer.tsx'
 import Header from './Header.tsx'
 
-/** Shared frame for every page: header, page content, footer. */
+/** Shared frame for every page: header, page content, footer, and the chat widget. */
 function Layout() {
   return (
     <>
@@ -11,6 +12,7 @@ function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <ChatWidget />
     </>
   )
 }

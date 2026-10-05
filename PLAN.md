@@ -189,7 +189,7 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 
 Content lives in typed data files in `frontend/src/data/`. No database.
 
-**E4-1: Home.** Name, tagline, short intro, link to Portfolio (changed to "Learn More", linking to About, in E4-6). No photo on Home (Michelle's choice); the chat link moves to E6-1.
+**E4-1: Home.** Name, tagline, short intro, link to Portfolio (changed to "Learn More", linking to About, in E4-6). No photo on Home (Michelle's choice); no chat link (the panel opens on its own, see E6-1).
 - AC: renders from data file; component test; layout shift on load within Google's "good" range (CLS under 0.1), measured in a real browser.
 - Depends on: E3-2. Owner: Claude builds, Michelle supplies tagline.
 
@@ -249,7 +249,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E6-1: Floating button and panel.** Button on every page opens a chat panel.
 - AC: present on all 5 routes; opens and closes by mouse and keyboard; focus moves into the panel and returns on close; component tests.
-- AC: Home page links to the chat (moved here from E4-1).
+- Decisions (2026-10-05, Michelle): no Home link to the chat (replaces the AC moved from E4-1). The panel is non-modal and opens automatically on page load at 40rem and wider; on phones it starts closed. Once closed, it stays closed for the browser tab session. The automatic open never moves focus. Panel shows a title, a close button and a welcome line; messages arrive in E6-2.
 - Depends on: E3-2. Owner: Claude.
 
 **E6-2: Wire chat to the API.** Send messages, show loading indicator, show replies as plain text, show a friendly error.
@@ -513,3 +513,13 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `Home.test.tsx` now checks the literal "Learn More" and `/about` instead of reading `home.link`, so a wrong value in the data fails the test. Proven to fail against the old data.
   - `docs/palette-samples.html` sample button updated to match.
   - Browser check: "Learn More" opens About at 1280px and 375px, 44px tap target, no horizontal scroll at 375px, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations on Home.
+- **E4-6 moved to Done in Jira** after PR #26 merged.
+- **E6-1 Floating button and panel: Done (PR pending).**
+  - `src/layout/ChatWidget.tsx`, mounted in `Layout` after the footer: an "Ask me" pill (`aria-expanded`, `aria-controls`) at the bottom right and a non-modal `role="dialog"` panel with a title, a close button and a welcome line. The panel stays in the DOM with `hidden` when closed, so E6-2's conversation will survive close and reopen.
+  - Opens on its own at 40rem and wider (lazy `useState` with `matchMedia`, so focus never moves on load); starts closed on phones. Closing writes `chat-closed` to `sessionStorage`, so it stays closed across pages and reloads until the tab closes (decisions under the E6-1 story; the Home link was dropped).
+  - Focus: a user open moves focus to the close button (`flushSync`, then `focus()`); the close button and Escape return it to the pill. Escape works while focus is inside the widget, not right after the automatic open (accepted).
+  - The pill covered the footer's LinkedIn and GitHub links (measured overlap at 1280px). Fixed with footer `padding-bottom` of one touch target plus two gaps; no overlap at 1280px or 375px.
+  - `.chat-close` shares the `.nav-toggle` styles and focus ring. New `--shadow-panel` token.
+  - Tests: jsdom has no `matchMedia`, so `src/test/setup.ts` stubs it per test (phone width by default, `setWide()` in `src/test/viewport.ts`) and clears `sessionStorage`. `ChatWidget.test.tsx`: button on all 5 routes, closed on phones, mouse and keyboard open and close, Escape, focus in and back, automatic open without focus, stays closed across navigation and reload. Proven to fail without the `sessionStorage` write or the focus return. 49 tests pass.
+  - Browser check: auto-opens at 1280px, closed at 375px, Enter and Escape move focus correctly, stays closed after reload, no horizontal scroll, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations with the panel open.
+  - Review: three reviewer agents found no bugs. Fixed: duplicated close-button CSS, hard-coded shadow colour, a redundant `[hidden]` rule, and test tidy-ups.
