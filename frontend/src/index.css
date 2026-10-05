@@ -111,7 +111,7 @@ main {
 }
 
 .nav-toggle,
-.chat-close {
+.chat-dismiss {
   align-items: center;
   justify-content: center;
   min-width: var(--size-touch);
@@ -126,7 +126,7 @@ main {
 
 .button:focus-visible,
 .nav-toggle:focus-visible,
-.chat-close:focus-visible,
+.chat-dismiss:focus-visible,
 .site-header nav a:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
@@ -463,7 +463,7 @@ main {
   color: var(--color-accent);
 }
 
-.chat-close {
+.chat-dismiss {
   display: inline-flex;
 }
 
@@ -496,10 +496,6 @@ main {
 }
 
 @media (width >= 64rem) {
-  .ask-button {
-    display: none;
-  }
-
   .site-top {
     position: sticky;
     top: 0;
@@ -513,7 +509,7 @@ main {
     flex-wrap: nowrap;
   }
 
-  .page {
+  .page:has(> .chat-panel:not([hidden])) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--chat-width);
   }
