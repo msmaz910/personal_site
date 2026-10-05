@@ -4,7 +4,7 @@ import { expect, test } from 'vitest'
 import { renderAt } from '../test/renderAt.tsx'
 import { setWide } from '../test/viewport.ts'
 
-const TITLE = 'Chat with my Digital Twin'
+const TITLE = 'Ask my Digital Twin'
 
 const askButton = () => screen.queryByRole('button', { name: 'AI Chat' })
 const closeButton = () => screen.queryByRole('button', { name: 'Close chat' })

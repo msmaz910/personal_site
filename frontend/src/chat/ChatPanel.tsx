@@ -35,7 +35,7 @@ function ChatPanel({ hidden, modal, dismissRef, onDismiss }: Props) {
       onKeyDown={closeOnEscape}
     >
       <div className="chat-header">
-        <h2 id="chat-title">Chat with my Digital Twin</h2>
+        <h2 id="chat-title">Ask my Digital Twin</h2>
         <button
           ref={dismissRef}
           type="button"
