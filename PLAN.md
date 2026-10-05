@@ -100,7 +100,7 @@ Current palette: **Desert Sand** (light, chosen in E4-1; replaced the original d
 
 Rules:
 - CI never calls the real OpenRouter API. The model is always mocked.
-- Live tests are marked `live`, skipped by default, and run only on demand with `uv run pytest -m live`.
+- Live tests are marked `live`, skipped by default, and run only on demand with `uv run pytest -m live --no-cov` (a live-only run covers too little code for the 80% floor and would report a failure even when the tests pass).
 - Every story ships with its own tests. Tests are part of the acceptance criteria.
 - Backend coverage floor: 80%.
 - Use `uv run pytest`, never `python`.
@@ -247,8 +247,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - Depends on: E5-3. Owner: Claude.
 
 **E5-6: Chat answer polish.** Fix content issues found in live answers during E6-3.
-- AC: the system prompt tells the model not to use markdown formatting (such as `**` or `#`) and not to invite visitors to discuss job opportunities (pointing to email or LinkedIn for anything else is still fine); "Visual Studio" is removed from Top Skills in `profile.md`; unit tests confirm the new rules appear in the prompt; a live check of the four starter questions shows no markdown and no job-search invitation.
-- Decisions (2026-10-05, Michelle): fix markdown with a prompt rule only (cleaning keeps markdown, per E5-4). "Pensacola" stays in the profile.
+- AC: the system prompt tells the model not to use markdown formatting (such as `**` or `#`) and not to invite visitors to discuss job opportunities (pointing to email or LinkedIn for anything else is still fine); "Visual Studio" is removed from Top Skills in `profile.md`; unit tests confirm the new rules appear in the prompt and that Top Skills has "dbt" and no "Visual Studio"; a live test (`backend/tests/test_live_chat.py`, run with `uv run pytest -m live --no-cov`) asks the four starter questions against the real model and fails on `**`, a line-start `#` heading, or a job-invitation phrase.
+- Decisions (2026-10-05, Michelle): fix markdown with a prompt rule only (cleaning keeps markdown, per E5-4). "Pensacola" stays in the profile. Rule wording approved as drafted (a dash at the start of a line is still fine for lists; pointing to email or LinkedIn is still fine). "DBT" becomes "dbt" to match the About page. The job-invite check matches "discuss, job, new, career or future" followed by "opportunit", not "opportunit" alone, because the profile says "cost saving opportunities". The career-goal answer may still end with "reach out via email or LinkedIn to discuss this further" (Michelle likes it). The live test is a regression spot check, not an eval.
 - Depends on: E5-2, E6-3. Owner: Claude (Michelle edits `profile.md` or approves the edit).
 
 ### E6 Chat frontend
@@ -267,7 +267,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E6-3: Suggested starter questions.** A few clickable prompts shown when the chat is empty.
 - AC: clicking a suggestion sends it; suggestions hide after the first message; component test.
-- Decisions (2026-10-05, Michelle): four questions, in this order: "What's her current role?" (shortened from "What does Michelle do in her current role?", which wrapped to two lines), "What's her career goal?", "How did she get into analytics?", "What skills does she have?". They live in `frontend/src/data/chat.ts`. Soft pill chips above the text box, chosen over the first outlined accent buttons, whose dark blue was distracting: cream fill, thin beige outline, 14px regular text in `--color-text-soft`. They show only while the chat is empty and nothing is waiting, so they also stay hidden after a reload with a saved conversation.
+- Decisions (2026-10-05, Michelle): four questions, in this order: "What's her current role?" (shortened from "What does Michelle do in her current role?", which wrapped to two lines), "What's her career goal?", "How did she get into analytics?", "What skills does she have?". They live in `frontend/src/data/chat.ts`. They are copied into `backend/tests/test_live_chat.py` (E5-6); update both if they change. Soft pill chips above the text box, chosen over the first outlined accent buttons, whose dark blue was distracting: cream fill, thin beige outline, 14px regular text in `--color-text-soft`. They show only while the chat is empty and nothing is waiting, so they also stay hidden after a reload with a saved conversation.
 - Depends on: E6-2. Owner: Claude builds, Michelle approves the questions.
 
 ### E7 Launch
@@ -312,6 +312,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - Depends on: E5-5. Owner: Claude.
 
 **E8-4: Live chat evals.** A file of about 15 questions with expected facts, and a script that runs them against the real model.
+- Note (E5-6): `backend/tests/test_live_chat.py` already live-checks the four starter questions for formatting and job invitations. Reuse its `live` marker and run command rather than duplicating it.
 - AC: `uv run` command prints pass or fail per question; not part of CI; Michelle reviews the questions and answers for accuracy.
 - Depends on: E5-3. Owner: Claude builds, Michelle reviews.
 
@@ -559,3 +560,12 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Live answers showed content issues (markdown asterisks, a job-search invitation, Visual Studio as a skill); Michelle chose to fix them in a new story, E5-6. "Pensacola" stays.
   - Review: three reviewer agents found no issues in the code.
   - Restyle (Michelle): the first outlined accent buttons were distracting, so they became pill chips (picked from three previews: soft outline, pill chips, quiet links). Their text uses the disabled Send button's blue-gray, deepened for contrast: the exact colour (about #7893a8) is 2.81:1 on cream and fails AA; #4e6a80 passes on cream (4.96) but not on the card (4.42); `--color-text-soft` #4c677c passes both (5.19 and 4.62) and is in the contrast test. Re-checked after the restyle at 1280x800, 375x740 and 375x568: 44px chips, one per row, no horizontal scroll, focus ring visible, axe 0 WCAG A/AA violations. 86 tests pass. Three reviewer agents found no issues.
+- **E6-3 moved to Done in Jira** after PR #29 merged.
+- **E5-6 Chat answer polish: Done (PR pending).**
+  - Reproduced first with the new live test against the old rules. Run 1: the career-goal answer ended "...if you'd like to discuss opportunities further!". Run 2: the skills answer used `**bold**` labels and listed Visual Studio and "DBT" (the career-goal answer passed that time; answers vary run to run).
+  - A 402 from OpenRouter ("would exceed your available credits") stopped run 1 part way. The site uses the same key, so Michelle topped up the credits before continuing. Spend limits are still E7-4.
+  - `prompts.py`: two new `RULES` (decisions under the story). `profile.md`: Visual Studio removed from Top Skills, "DBT" is now "dbt". Cleaning is unchanged and still keeps markdown (E5-4).
+  - Tests: `test_prompts.py` gains a keyword test that fails if either new rule is deleted (the every-rule test only checks what is in the list) and a profile test for the skills edit; both failed before the change. `test_live_chat.py` is new. Its docstring and the older live test's now give `uv run pytest -m live --no-cov`: without `--no-cov`, a passing live run reported "Required test coverage of 80% not reached" (44.72%).
+  - After the fix: 12 of 12 live answers clean over 3 runs. A real skills answer is a plain dash list with dbt and no Visual Studio. 67 backend tests pass (4 live tests deselected by default), 98% coverage, ruff clean.
+  - Review: three reviewer agents found no bugs. Fixed: the live-run command, and a clearer profile test name. Kept the keyword test (it guards against deleting the rules). Not covered by the live check: rarer phrasings such as "exciting opportunities" and indented headings; E8-4 can go broader.
+  - Chat input text (Michelle, added to this PR): typed text felt harsh in `--color-text`, so `.chat-form input` in `frontend/src/index.css` now uses `--color-text-muted` (#56606a, the welcome line's colour), chosen from rendered previews of three softer options. No new token; it is already in the contrast test (5.60:1 on the cream box, passes AA). It is close to the browser's default placeholder grey (#757575); accepted, because the placeholder disappears as soon as you type. No `::placeholder` rule. Checked at 1280px and 375px with typed text (no chat calls), axe 0 WCAG A/AA violations, 86 frontend tests pass. Three reviewer agents: no bugs; a suggestion to revert to `--color-text` was declined, since softening was the request.
