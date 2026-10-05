@@ -87,14 +87,6 @@ test('desktop: the chat column stays the same element across pages', async () =>
   expect(document.getElementById('chat-panel')).toBe(panel)
 })
 
-test('chat shows a message box and Send button, disabled until E6-2', () => {
-  setWide(true)
-  renderAt('/')
-
-  expect(screen.getByRole('textbox', { name: 'Your question' })).toBeDisabled()
-  expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled()
-})
-
 test('resizing: an open phone chat docks on desktop and unlocks the page', async () => {
   const user = userEvent.setup()
   renderAt('/')

@@ -41,9 +41,10 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """The model's reply."""
+    """The reply, and whether the chat has reached its user message limit."""
 
     reply: str
+    limit_reached: bool = False
 
 
 @lru_cache
@@ -73,17 +74,20 @@ def is_over_user_limit(settings: Settings, messages: list[Message]) -> bool:
     return sum(m.role == "user" for m in messages) > settings.max_user_messages
 
 
-def get_reply(client: OpenAI, settings: Settings, messages: list[Message]) -> str:
+def get_reply(
+    client: OpenAI, settings: Settings, messages: list[Message]
+) -> ChatResponse:
     """Send the system prompt and conversation to the model; return the cleaned reply.
 
     Rejects oversized user messages with a 422, and returns CLOSING_MESSAGE
-    without calling the model once the user message limit is passed.
+    with `limit_reached` set, without calling the model, once the user message
+    limit is passed.
     Only the newest `max_history_messages` messages are sent. Falls back to
     FALLBACK_REPLY when nothing is left after cleaning.
     """
     check_message_lengths(settings, messages)
     if is_over_user_limit(settings, messages):
-        return CLOSING_MESSAGE
+        return ChatResponse(reply=CLOSING_MESSAGE, limit_reached=True)
     system = {"role": "system", "content": build_system_prompt(load_profile())}
     recent = messages[-settings.max_history_messages :]
     history = [message.model_dump() for message in recent]
@@ -92,4 +96,5 @@ def get_reply(client: OpenAI, settings: Settings, messages: list[Message]) -> st
         messages=[system, *history],
         max_tokens=settings.max_reply_tokens,
     )
-    return clean_reply(completion.choices[0].message.content) or FALLBACK_REPLY
+    reply = clean_reply(completion.choices[0].message.content) or FALLBACK_REPLY
+    return ChatResponse(reply=reply)
