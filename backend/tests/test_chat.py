@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from openai import APIConnectionError
 
 from app.chat import (
+    CLOSING_MESSAGE,
     FALLBACK_REPLY,
     OPENROUTER_BASE_URL,
     UNAVAILABLE_MESSAGE,
@@ -51,6 +52,9 @@ def fake():
         openrouter_api_key="test-key",
         openrouter_model="test/model",
         max_reply_tokens=123,
+        max_message_chars=50,
+        max_user_messages=3,
+        max_history_messages=6,
     )
     app.dependency_overrides[get_client] = lambda: client
     app.dependency_overrides[get_settings] = lambda: settings
@@ -60,6 +64,15 @@ def fake():
 
 def post_chat(messages):
     return TestClient(app).post("/api/chat", json={"messages": messages})
+
+
+def conversation(user_count):
+    """Build alternating user and assistant turns that end on a user message."""
+    turns = []
+    for i in range(user_count):
+        turns.append({"role": "user", "content": f"question {i}"})
+        turns.append({"role": "assistant", "content": f"answer {i}"})
+    return turns[:-1]
 
 
 def test_chat_returns_model_reply(fake):
@@ -132,3 +145,62 @@ def test_empty_reply_returns_fallback(fake, raw):
 
     assert response.status_code == 200
     assert response.json() == {"reply": FALLBACK_REPLY}
+
+
+def test_oversized_user_message_returns_422(fake):
+    response = post_chat([{"role": "user", "content": "x" * 51}])
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": "Your message is too long. Please keep it under 50 characters."
+    }
+    assert fake.calls == []
+
+
+def test_user_message_at_length_limit_is_accepted(fake):
+    response = post_chat([{"role": "user", "content": "x" * 50}])
+
+    assert response.status_code == 200
+    assert len(fake.calls) == 1
+
+
+def test_long_assistant_message_is_not_rejected(fake):
+    long_reply = {"role": "assistant", "content": "x" * 51}
+
+    response = post_chat([HISTORY[0], long_reply, HISTORY[2]])
+
+    assert response.status_code == 200
+
+
+def test_user_messages_at_limit_still_reach_the_model(fake):
+    response = post_chat(conversation(3))
+
+    assert response.json() == {"reply": "Michelle uses SQL, Python, and dbt."}
+    assert len(fake.calls) == 1
+
+
+def test_user_messages_over_limit_return_closing_message(fake):
+    response = post_chat(conversation(4))
+
+    assert response.status_code == 200
+    assert response.json() == {"reply": CLOSING_MESSAGE}
+    assert fake.calls == []
+
+
+def test_length_check_runs_before_closing_message(fake):
+    messages = conversation(4)
+    messages[-1]["content"] = "x" * 51
+
+    response = post_chat(messages)
+
+    assert response.status_code == 422
+    assert fake.calls == []
+
+
+def test_long_history_is_trimmed_to_newest_messages(fake):
+    old = [{"role": "assistant", "content": f"old {i}"} for i in range(4)]
+    messages = [*old, *conversation(3)]
+
+    post_chat(messages)
+
+    assert fake.calls[0]["messages"][1:] == messages[-6:]

@@ -51,7 +51,7 @@ frontend/               Vite + React + TypeScript (src/, tests, e2e/)
 
 | File | Committed | Contents |
 |---|---|---|
-| `.env` | No | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `PORT`, `MAX_MESSAGE_CHARS`, `MAX_REPLY_TOKENS`, `MAX_USER_MESSAGES` |
+| `.env` | No | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `PORT`, `MAX_MESSAGE_CHARS`, `MAX_REPLY_TOKENS`, `MAX_USER_MESSAGES`, `MAX_HISTORY_MESSAGES` |
 | `.env.example` | Yes | Same keys, placeholder values. Doubles as the checklist for Vercel settings |
 | `frontend/.env.development`, `frontend/.env.production` | Yes | Public values only: `VITE_SITE_NAME`, `VITE_LINKEDIN_URL`, `VITE_GITHUB_URL`, `VITE_CONTACT_EMAIL` |
 

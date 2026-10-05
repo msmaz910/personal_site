@@ -13,6 +13,7 @@ def test_settings_load_from_env(monkeypatch):
     monkeypatch.setenv("MAX_MESSAGE_CHARS", "500")
     monkeypatch.setenv("MAX_REPLY_TOKENS", "300")
     monkeypatch.setenv("MAX_USER_MESSAGES", "5")
+    monkeypatch.setenv("MAX_HISTORY_MESSAGES", "8")
 
     settings = Settings(_env_file=None)
 
@@ -22,6 +23,7 @@ def test_settings_load_from_env(monkeypatch):
     assert settings.max_message_chars == 500
     assert settings.max_reply_tokens == 300
     assert settings.max_user_messages == 5
+    assert settings.max_history_messages == 8
 
 
 def test_missing_api_key_fails_clearly(monkeypatch):

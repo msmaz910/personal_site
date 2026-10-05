@@ -3,6 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
+from fastapi import HTTPException
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
@@ -18,6 +19,11 @@ UNAVAILABLE_MESSAGE = (
 FALLBACK_REPLY = (
     "I'm not sure how to answer that. Please try rephrasing, "
     "or reach Michelle by email or on LinkedIn."
+)
+CLOSING_MESSAGE = (
+    "Thank you for the great conversation! I've reached the limit for this chat, "
+    "but Michelle would be glad to answer anything else. You can contact her at "
+    "michelle.mazzotta@gmail.com or on LinkedIn."
 )
 
 
@@ -51,13 +57,36 @@ def get_client() -> OpenAI:
     )
 
 
+def check_message_lengths(settings: Settings, messages: list[Message]) -> None:
+    """Raise a 422 if any user message is longer than the configured limit."""
+    limit = settings.max_message_chars
+    if any(m.role == "user" and len(m.content) > limit for m in messages):
+        raise HTTPException(
+            status_code=422,
+            detail=f"Your message is too long. Please keep it under {limit} "
+            "characters.",
+        )
+
+
+def is_over_user_limit(settings: Settings, messages: list[Message]) -> bool:
+    """Return True when the history holds more user messages than allowed."""
+    return sum(m.role == "user" for m in messages) > settings.max_user_messages
+
+
 def get_reply(client: OpenAI, settings: Settings, messages: list[Message]) -> str:
     """Send the system prompt and conversation to the model; return the cleaned reply.
 
-    Falls back to FALLBACK_REPLY when nothing is left after cleaning.
+    Rejects oversized user messages with a 422, and returns CLOSING_MESSAGE
+    without calling the model once the user message limit is passed.
+    Only the newest `max_history_messages` messages are sent. Falls back to
+    FALLBACK_REPLY when nothing is left after cleaning.
     """
+    check_message_lengths(settings, messages)
+    if is_over_user_limit(settings, messages):
+        return CLOSING_MESSAGE
     system = {"role": "system", "content": build_system_prompt(load_profile())}
-    history = [message.model_dump() for message in messages]
+    recent = messages[-settings.max_history_messages :]
+    history = [message.model_dump() for message in recent]
     completion = client.chat.completions.create(
         model=settings.openrouter_model,
         messages=[system, *history],
