@@ -40,3 +40,15 @@ def test_rules_come_before_profile():
     prompt = build_system_prompt("SAMPLE-PROFILE")
 
     assert prompt.index(RULES[-1]) < prompt.index("SAMPLE-PROFILE")
+
+
+@pytest.mark.parametrize("keyword", ["markdown", "job opportunities"])
+def test_system_prompt_keeps_answer_polish_rules(keyword):
+    assert keyword in build_system_prompt("profile text")
+
+
+def test_profile_top_skills_have_dbt_and_no_visual_studio():
+    profile = load_profile()
+
+    assert "Visual Studio" not in profile
+    assert "- dbt\n" in profile

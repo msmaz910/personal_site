@@ -1,4 +1,7 @@
-"""Live test that makes one real OpenRouter call. Run with `uv run pytest -m live`."""
+"""Live test that makes one real OpenRouter call.
+
+Run with `uv run pytest -m live --no-cov`.
+"""
 
 import pytest
 from openai import OpenAI

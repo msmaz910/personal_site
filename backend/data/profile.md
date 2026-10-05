@@ -12,8 +12,7 @@ Intrinsically motivated analytics engineer (SQL, R, Python) with a successful hi
 ## Top Skills
 
 - Data Modeling
-- DBT
-- Visual Studio
+- dbt
 - Snowflake
 - Machine Learning
 - AI Engineering
