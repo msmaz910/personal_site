@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { home } from './data/home.ts'
 
-/** Landing page: name, tagline, tags, intro and a portfolio link, from data/home.ts. */
+/** Landing page: name, tagline, tags, intro and a link to About, from data/home.ts. */
 function Home() {
   const { title, mission, tags, intro, link } = home
 
