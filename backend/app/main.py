@@ -35,10 +35,9 @@ def chat(
 ) -> ChatResponse:
     """Return the model's reply, or a clean 502 if OpenRouter fails."""
     try:
-        reply = get_reply(client, settings, request.messages)
+        return get_reply(client, settings, request.messages)
     except APIError as error:
         raise HTTPException(status_code=502, detail=UNAVAILABLE_MESSAGE) from error
-    return ChatResponse(reply=reply)
 
 
 app.mount("/", SPAStaticFiles(directory=FRONTEND_DIST, html=True, check_dir=False))

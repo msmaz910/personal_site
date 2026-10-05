@@ -5,6 +5,7 @@
   --color-border: #d5c7b0;
   --color-text: #1f2a33;
   --color-text-muted: #56606a;
+  --color-error: #9b2c2c;
   --color-accent: #2b5f8c;
 
   /* Decorative only (header hairline gradient), never used for text. */

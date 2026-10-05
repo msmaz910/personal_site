@@ -83,7 +83,7 @@ Current palette: **Desert Sand** (light, chosen in E4-1; replaced the original d
 - Type: Young Serif for headings (kept after previewing Inter bold, Space Grotesk and Plus Jakarta Sans), Inter for body (intro at 1.125rem, muted), JetBrains Mono for tags.
 - Feel: generous spacing, clean and minimal, real hiking and cycling photos where available.
 - Define colors and fonts once as CSS variables (E3-1). Every page uses them.
-- Layout: one desktop breakpoint at 64rem (in `index.css` and `useWideScreen.ts`), plus 40rem for the phone menu. Layout tokens: `--size-touch` 2.75rem, `--header-height` 4.5rem, `--chat-width` 26rem, `--chat-height` 40rem.
+- Layout: one desktop breakpoint at 64rem (in `index.css` and `useWideScreen.ts`), plus 40rem for the phone menu. Layout tokens: `--size-touch` 2.75rem, `--header-height` 4.5rem, `--chat-width` 26rem, `--chat-height` 40rem. Error text uses `--color-error` (#9b2c2c), checked by the contrast test.
 
 ## Testing strategy
 
@@ -254,8 +254,9 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - Depends on: E3-2. Owner: Claude.
 
 **E6-2: Wire chat to the API.** Send messages, show loading indicator, show replies as plain text, show a friendly error.
-- AC: with the API mocked, a sent message shows a loading state then the reply; a failed request shows an error message; history sent is capped; component tests.
-- AC: the panel counts user messages; at `MAX_USER_MESSAGES` it shows the closing message returned by the backend and disables the input; component test covers it.
+- AC: with the API mocked, a sent message shows a loading state then the reply; a failed request shows an error message; the whole history is sent, untrimmed (see decisions); component tests.
+- AC: on the 11th user message the backend returns the closing message with `limit_reached: true`; the panel shows it and disables the input; component test covers it.
+- Decisions (2026-10-05, Michelle): the frontend does not trim the history, because the backend counts every user message for `MAX_USER_MESSAGES` and trims to `MAX_HISTORY_MESSAGES` itself (E5-5); trimming here would hide messages from that count. The backend flags the limit with `limit_reached` (so the limit lives only in the backend). The conversation and the flag are saved in `sessionStorage` for the tab. While waiting, an animated three-dot bubble shows ("Thinking…" for screen readers, still under reduced motion). A failed request shows the backend's friendly `detail` when it is a string, otherwise "Something went wrong. Please try again.", and puts the question back in the box; nothing is added to the history. A new reply scrolls so its question and the start of the reply are visible.
 - Replies must render as text (React text nodes), never as HTML (`dangerouslySetInnerHTML`). E5-4 strips tags in one pass and keeps HTML entities, so it is a second layer, not the only one.
 - Depends on: E6-1, E5-3. Owner: Claude.
 
@@ -301,6 +302,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E8-3: Chat safety tests.** Mocked-model tests for prompt injection, off-topic, unanswerable, and oversized input.
 - AC: system prompt is always sent first and cannot be replaced by user messages; oversized input rejected; suite runs in CI.
+- Note (E6-2): the 11th user message is not an error. It returns HTTP 200 with the closing message and `limit_reached: true`.
 - Depends on: E5-5. Owner: Claude.
 
 **E8-4: Live chat evals.** A file of about 15 questions with expected facts, and a script that runs them against the real model.
@@ -527,3 +529,16 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Tests: `src/test/viewport.ts` fakes `matchMedia` with change listeners (`setWide()`), phone width by default. `ChatPanel.test.tsx` covers the button on all 5 routes, full-screen open with focus inside and the page inert, close and Escape with focus back, the same element after closing and across pages, the desktop card with no dialog or close button, the disabled message box, resizing both ways, and Escape after clicking text. Minimize tests: minimize with focus on the header button, restore with focus on the card, remembered across pages and a reload, a phone ignoring a remembered minimized state, and a minimized chat across resizes. Proven to fail without `inert`, the focus return, the resize close, `tabIndex`, the `sessionStorage` write, or `hidden` following `minimized`. 60 tests pass.
   - Browser check: 375, 768, 1024, 1280 and 1920px. The card stays at 104px from the top while scrolling, nothing overlaps, no horizontal scroll, Tab cannot reach the page behind the phone chat, no console errors. axe 4.10.3 finds 0 WCAG A/AA violations on desktop (card docked and minimized) and with the phone chat open. Minimize at 1280px: content spans the full width, the header stays 72px, focus moves both ways, and minimized survives a reload.
   - Review: three reviewer agents found no bugs. Fixed: the resize reopen, duplicated button resets and focus rule. Deferred to E6-2: a focus style for the message box once it is enabled. Minimize review: no bugs. Fixed: merged the close and minimize handlers into `dismissChat`, one `askButton` test helper, renamed `.chat-close` to `.chat-dismiss` and the ref to `dismissRef`. Not handled: focus drops to `body` if a resize hides the panel while it has focus.
+
+- **E6-1 moved to Done in Jira** after PR #27 merged.
+- **E6-2 Wire chat to the API: Done (PR pending).**
+  - Backend: `ChatResponse` gains `limit_reached` (default false); `get_reply` returns a `ChatResponse`, with `limit_reached=True` only alongside `CLOSING_MESSAGE`. Existing tests updated, 62 pass.
+  - `vite.config.ts`: dev proxy for `/api` to `localhost:8000`. Proved with curl: before, the dev server answered `/api/health` with `index.html`; after, `{"status":"ok"}`. Production is already one origin.
+  - `src/chat/api.ts`: `postChat()` sends the whole history to `/api/chat`. A failed response throws a `ChatError` with the backend's string `detail`, or `GENERIC_ERROR` when there is none (validation arrays, HTML error pages).
+  - `src/chat/useChat.ts`: the conversation and `limitReached` saved in `sessionStorage` (`chat-conversation`), the question awaiting a reply (`asking`), and the latest error. `send()` returns `'replied'`, `'closed'` or `'failed'`. No history trimming (decisions under the story).
+  - `ChatPanel`: a `role="log"` conversation (labelled, `aria-busy`, `tabIndex={0}` so keyboard users can scroll it) with plain-text bubbles (`white-space: pre-wrap`, never HTML), the pending question plus a three-dot bubble, a `role="alert"` error, and the form. The box stays enabled while waiting (Send is disabled); a failure puts the question back; the closing reply locks the box and Send and moves focus to the conversation.
+  - Scrolling: while waiting, to the bottom; after a reply, to the top of its question, so long replies read from the start; also when a hidden panel becomes visible (hidden content has no height). The list has right padding because macOS overlay scrollbars take no space and sat over the bubbles.
+  - Styles: `.chat-log`, `.chat-bubble`, `.chat-user` (accent), `.chat-assistant` (bordered), `.chat-dots` (paused under reduced motion), `.chat-error`. New `--color-error` token in the contrast test. The message box and the conversation join the shared focus ring (deferred from E6-1).
+  - Tests: `setup.ts` unstubs globals after each test. `ChatConversation.test.tsx` fakes `fetch` and covers the request body, the waiting state, Send and focus, plain text, the friendly and generic errors, the limit lock with focus, reload persistence without stealing focus, keyboard reach, and scrolling (with `scrollHeight` and `offsetTop` faked to model hidden content). Proven to fail when replies render as HTML, the question is not restored, the history is trimmed, the limit is ignored, focus stays on the disabled box, scrolling always goes to the bottom, or the panel does not scroll when opened. 73 tests pass.
+  - Browser check against the real backend: a real reply in 3.3 s, dots and disabled Send while waiting, reload keeps the conversation, the backend stopped shows the generic error with the question back in the box. With faked replies: long replies scroll to their start, the closing reply on a phone moves focus to the conversation and Escape still closes, and a reload does not move focus. axe 4.10.3 found that the conversation could not be scrolled by keyboard (`scrollable-region-focusable`); fixed, now 0 WCAG A/AA violations at 375 and 1280px.
+  - Review: three reviewer agents. Fixed: focus was lost when the closing reply disabled the box (reproduced in the browser: focus on `body`, Escape stopped working on phones). Approved by Michelle: replies scroll to their start instead of the bottom.

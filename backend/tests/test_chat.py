@@ -79,7 +79,10 @@ def test_chat_returns_model_reply(fake):
     response = post_chat(HISTORY)
 
     assert response.status_code == 200
-    assert response.json() == {"reply": "Michelle uses SQL, Python, and dbt."}
+    assert response.json() == {
+        "reply": "Michelle uses SQL, Python, and dbt.",
+        "limit_reached": False,
+    }
 
 
 def test_system_prompt_is_sent_first_then_history(fake):
@@ -125,7 +128,7 @@ def test_upstream_failure_returns_clean_502(fake):
 def test_chat_returns_only_cleaned_text(fake):
     fake.reply = "<think>plan</think><b>Hi</b><script>alert(1)</script>"
 
-    assert post_chat(HISTORY).json() == {"reply": "Hi"}
+    assert post_chat(HISTORY).json() == {"reply": "Hi", "limit_reached": False}
 
 
 def test_chat_caps_oversized_reply(fake):
@@ -144,7 +147,7 @@ def test_empty_reply_returns_fallback(fake, raw):
     response = post_chat(HISTORY)
 
     assert response.status_code == 200
-    assert response.json() == {"reply": FALLBACK_REPLY}
+    assert response.json() == {"reply": FALLBACK_REPLY, "limit_reached": False}
 
 
 def test_oversized_user_message_returns_422(fake):
@@ -175,7 +178,10 @@ def test_long_assistant_message_is_not_rejected(fake):
 def test_user_messages_at_limit_still_reach_the_model(fake):
     response = post_chat(conversation(3))
 
-    assert response.json() == {"reply": "Michelle uses SQL, Python, and dbt."}
+    assert response.json() == {
+        "reply": "Michelle uses SQL, Python, and dbt.",
+        "limit_reached": False,
+    }
     assert len(fake.calls) == 1
 
 
@@ -183,7 +189,7 @@ def test_user_messages_over_limit_return_closing_message(fake):
     response = post_chat(conversation(4))
 
     assert response.status_code == 200
-    assert response.json() == {"reply": CLOSING_MESSAGE}
+    assert response.json() == {"reply": CLOSING_MESSAGE, "limit_reached": True}
     assert fake.calls == []
 
 
