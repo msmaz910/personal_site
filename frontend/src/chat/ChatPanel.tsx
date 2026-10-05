@@ -1,4 +1,5 @@
 import { type FormEvent, type KeyboardEvent, type RefObject, useEffect, useRef, useState } from 'react'
+import { starterQuestions } from '../data/chat.ts'
 import { useChat } from './useChat.ts'
 
 type Props = {
@@ -14,12 +15,15 @@ type Props = {
  * docked card. Always mounted, so its conversation survives closing and resizing.
  * tabIndex -1 keeps focus in the panel when its text is clicked, so Escape still closes it.
  * Messages go through useChat; replies render as React text, never as HTML.
+ * An empty chat offers starter questions, which send like typed ones.
  */
 function ChatPanel({ hidden, modal, dismissRef, onDismiss }: Props) {
   const { messages, limitReached, asking, error, send } = useChat()
   const [draft, setDraft] = useState('')
   const logRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const canSend = draft.trim() !== '' && asking === null && !limitReached
+  const showStarters = messages.length === 0 && asking === null
 
   useEffect(() => {
     if (modal) dismissRef.current?.focus()
@@ -37,17 +41,29 @@ function ChatPanel({ hidden, modal, dismissRef, onDismiss }: Props) {
   }
 
   /**
-   * Sends the draft. A failed request puts it back in the box; the closing reply locks
-   * the box, so focus moves to the conversation, where the reply is announced.
+   * Sends a question. A failed request puts it back in the box unless the visitor has
+   * typed something else; the closing reply locks the box, so focus moves to the
+   * conversation, where the reply is announced.
    */
+  async function ask(question: string) {
+    const result = await send(question)
+    if (result === 'failed') setDraft((current) => current || question)
+    if (result === 'closed') logRef.current!.focus()
+  }
+
+  /** Sends a starter question. Focus moves to the box first, because the buttons unmount. */
+  function pick(question: string) {
+    inputRef.current!.focus()
+    return ask(question)
+  }
+
+  /** Sends the typed draft and clears the box. */
   async function submit(event: FormEvent) {
     event.preventDefault()
     if (!canSend) return
     const question = draft.trim()
     setDraft('')
-    const result = await send(question)
-    if (result === 'failed') setDraft((current) => current || question)
-    if (result === 'closed') logRef.current!.focus()
+    await ask(question)
   }
 
   return (
@@ -95,6 +111,15 @@ function ChatPanel({ hidden, modal, dismissRef, onDismiss }: Props) {
           </>
         )}
       </div>
+      {showStarters && (
+        <div className="chat-starters" role="group" aria-label="Suggested questions">
+          {starterQuestions.map((question) => (
+            <button key={question} type="button" className="button" onClick={() => pick(question)}>
+              {question}
+            </button>
+          ))}
+        </div>
+      )}
       {error && (
         <p className="chat-error" role="alert">
           {error}
@@ -105,6 +130,7 @@ function ChatPanel({ hidden, modal, dismissRef, onDismiss }: Props) {
           Your question
         </label>
         <input
+          ref={inputRef}
           id="chat-input"
           type="text"
           placeholder="Ask a question"
