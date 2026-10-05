@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     max_message_chars: int = 1000
     max_reply_tokens: int = 500
     max_user_messages: int = 10
+    max_history_messages: int = 20
 
 
 @lru_cache
