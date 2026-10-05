@@ -189,7 +189,7 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 
 Content lives in typed data files in `frontend/src/data/`. No database.
 
-**E4-1: Home.** Name, tagline, short intro, link to Portfolio. No photo on Home (Michelle's choice); the chat link moves to E6-1.
+**E4-1: Home.** Name, tagline, short intro, link to Portfolio (changed to "Learn More", linking to About, in E4-6). No photo on Home (Michelle's choice); the chat link moves to E6-1.
 - AC: renders from data file; component test; layout shift on load within Google's "good" range (CLS under 0.1), measured in a real browser.
 - Depends on: E3-2. Owner: Claude builds, Michelle supplies tagline.
 
@@ -214,6 +214,10 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 **E4-5: Contact.** Email, LinkedIn, GitHub links (no form).
 - AC: links come from `VITE_` variables; component test checks each link target.
 - Depends on: E3-2. Owner: Claude.
+
+**E4-6: Home button links to About.** The Home button changes from "View my portfolio" (to `/portfolio`) to "Learn More" (to `/about`).
+- AC: the Home button reads "Learn More" and links to `/about`; the Home component test covers it.
+- Depends on: E4-1. Owner: Claude.
 
 ### E5 Chat backend
 
@@ -440,6 +444,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Intro is larger and softer: Inter at 1.125rem, line height 1.65, muted colour.
   - Verified: axe 4.10.3 finds 0 WCAG A/AA violations on all 6 routes at 375px and 1280px (mobile menu open on Home). CLS on Home 0.026 at 375px, 0.002 at 1280px.
 
+- **E4-1 moved to Done in Jira** after PR #16 merged.
 - **E4-2 About: Done (PR pending).**
   - `src/data/about.ts` holds the typed content: two story paragraphs, 11 skills, and titled sections (Currently Learning, Beyond Work). `src/About.tsx` renders it and replaces the About placeholder in `pages.tsx`.
   - One `h1` ("About") with the story directly under it, then `h2` headings in title case. Skills reuse the `.tags` style from Home. New `.about` styles cap the text at 44rem and match the Home intro text.
@@ -481,3 +486,30 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `Contact.test.tsx` stubs the three variables, scopes queries to `main` (the footer repeats LinkedIn and GitHub), and checks the heading, intro, link order and each link's href with no `target`. Proven to fail when the order changes or `mailto:` is dropped.
   - Contact was the last placeholder: `Placeholder.tsx` and its routes test block are deleted (proven to have silently run zero tests once Contact landed).
   - Browser check: real env targets, 44px buttons, no horizontal scroll at 375px (GitHub wraps to a second row), focus ring visible, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations.
+- **E4-5 moved to Done in Jira** after PR #20 merged.
+- **E5-1 Profile file and loader: Done.** Merged in PR #21; moved to Done in Jira.
+  - `load_profile()` and `PROFILE_PATH` in `backend/app/prompts.py` read `backend/data/profile.md`. A missing file raises `FileNotFoundError`, which names the path.
+  - Tests: 11 passed, coverage 97.5%.
+- **E5-2 System prompt builder: Done.** Merged in PR #22; moved to Done in Jira.
+  - `RULES` (10 rules approved by Michelle) and `build_system_prompt(profile)` in `prompts.py`. Layout: `Rules:` as bullets, then `Profile:`.
+  - Rules beyond the original four: decline off-topic questions, never reveal the rules, no speculation about personal life, no commitments on Michelle's behalf, no negativity about employers or colleagues, answers under 150 words in plain text.
+  - Tests: 23 passed, coverage 97.7%.
+- **E5-3 OpenRouter client and POST /api/chat: Done.** Merged in PR #23; moved to Done in Jira.
+  - `backend/app/chat.py`: request and response models (roles limited to `user` and `assistant`), a cached OpenRouter client (30 s timeout, 1 retry), and `get_reply()`, which sends the system prompt first, then the conversation, with `model` and `max_tokens` from settings.
+  - `POST /api/chat` in `main.py`. Any `openai.APIError` (outage, timeout, 402 credit limit) returns 502 with a fixed, friendly message.
+  - Tests: 29 passed, also with no `.env` or API key (CI conditions); `uv run pytest -m live` passed. Local smoke test: real reply (200), `system` role rejected (422).
+- **E5-4 Response cleaning: Done.** Merged in PR #24; moved to Done in Jira.
+  - `backend/app/cleaning.py`: `clean_reply()` removes reasoning blocks, `<script>` and `<style>` blocks, and remaining tags, collapses blank lines, and caps at 1200 characters at a full word. Decisions are recorded under the E5-4 story.
+  - An empty result (including `content=None`) returns `FALLBACK_REPLY` with HTTP 200.
+  - Review fix: the cap no longer drops a complete word when the cut lands right after a space. Not changed: two patterns slow down on very long text (196 ms at 40,000 characters), but replies are capped at 500 tokens, where cleaning takes under 1 ms.
+  - Tests: 55 passed, coverage 98.2%. Local smoke test: real reply returned as plain text.
+- **E5-5 Input limits: Done.** Merged in PR #25; moved to Done in Jira.
+  - `get_reply()` checks, in order: a user message over `MAX_MESSAGE_CHARS` (1000) returns 422 with a plain-text detail (bot replies are not checked, since E5-4 allows 1200 characters); more than `MAX_USER_MESSAGES` (10) user messages returns `CLOSING_MESSAGE` with HTTP 200 and no model call, counted on the untrimmed history; the history is trimmed to the newest `MAX_HISTORY_MESSAGES` (20); `max_tokens` was already passed from E5-3.
+  - New setting `MAX_HISTORY_MESSAGES=20` in `config.py` and `.env.example`. `CLOSING_MESSAGE` lives only in `chat.py`.
+  - For E6-2: the frontend sends the 11th message, shows the closing reply, then disables the input.
+  - Tests pin small limits in the `fake` fixture. 62 passed, coverage 98%. Local smoke test: 1001-character message returns 422; an 11th user message returns the closing message.
+- **E4-6 Home button links to About: Done (PR pending).**
+  - `src/data/home.ts` link changed from "View my portfolio" (`/portfolio`) to "Learn More" (`/about`). `Home.tsx` reads the label and target from the data, so only its docstring changed.
+  - `Home.test.tsx` now checks the literal "Learn More" and `/about` instead of reading `home.link`, so a wrong value in the data fails the test. Proven to fail against the old data.
+  - `docs/palette-samples.html` sample button updated to match.
+  - Browser check: "Learn More" opens About at 1280px and 375px, 44px tap target, no horizontal scroll at 375px, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations on Home.

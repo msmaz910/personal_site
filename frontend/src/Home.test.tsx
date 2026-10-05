@@ -29,8 +29,8 @@ test('lists the tags and the intro from the data file', () => {
   expect(screen.getByText(home.intro)).toBeInTheDocument()
 })
 
-test('links to the portfolio', () => {
-  const link = within(screen.getByRole('main')).getByRole('link', { name: home.link.label })
+test('links to the About page', () => {
+  const link = within(screen.getByRole('main')).getByRole('link', { name: 'Learn More' })
 
-  expect(link).toHaveAttribute('href', home.link.to)
+  expect(link).toHaveAttribute('href', '/about')
 })
