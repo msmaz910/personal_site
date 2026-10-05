@@ -114,7 +114,7 @@ function ChatPanel({ hidden, modal, dismissRef, onDismiss }: Props) {
       {showStarters && (
         <div className="chat-starters" role="group" aria-label="Suggested questions">
           {starterQuestions.map((question) => (
-            <button key={question} type="button" className="button button-secondary" onClick={() => pick(question)}>
+            <button key={question} type="button" className="button" onClick={() => pick(question)}>
               {question}
             </button>
           ))}

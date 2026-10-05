@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { parseTokens, tokens } from './tokens.ts'
 
 const AA_NORMAL_TEXT = 4.5
-const TEXT_COLORS = ['text', 'text-muted', 'accent', 'error']
+const TEXT_COLORS = ['text', 'text-muted', 'text-soft', 'accent', 'error']
 const BACKGROUNDS = ['bg', 'surface']
 
 /** WCAG relative luminance of a #rrggbb color. */
