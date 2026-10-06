@@ -32,7 +32,7 @@ Assumptions to revisit if wrong: chat answers only from the profile file; Contac
 - Cleaning step (its own small function): strips reasoning blocks, HTML and script tags, and enforces a length cap. The frontend renders replies as plain text, never as raw HTML.
 - The OpenRouter client uses the `openai` SDK pointed at `https://openrouter.ai/api/v1`. Verify against current docs in E5-3.
 - Vercel containers are stateless and scale to zero after 5 idle minutes, so the first request after a quiet period is slow. Keep all state in the browser.
-- Each deployment (preview and production) stores one image in the Vercel container registry repository `dockerfile`, which caps at 50. A full registry fails the deploy with "Pushing ... was denied"; the log line "repository has reached the maximum allowed number of images" is the real cause. When it passes about 40 (each PR adds two), delete the oldest with `vercel vcr image ls dockerfile` and `vercel vcr image rm dockerfile <id>`, always keeping the live production image (tags are commit SHA prefixes). Michelle approves deletions. E2-5 automates this once it ships.
+- Each deployment (preview and production) stores one image in the Vercel container registry repository `dockerfile`, which caps at 50. A full registry fails the deploy with "Pushing ... was denied"; the log line "repository has reached the maximum allowed number of images" is the real cause. The `Prune registry` GitHub Action (E2-5, `scripts/prune_registry.py`) runs after each push to `main`: over 40 images, it deletes all but the newest 20 and the live production image (tags are 12-character commit SHA prefixes). Run it by hand from the Actions tab; the dry-run box is ticked by default. Manual commands: `vercel vcr image ls dockerfile` and `vercel vcr image rm dockerfile <id>`.
 
 ## Repository layout
 
@@ -44,6 +44,7 @@ pyproject.toml          uv-managed
 backend/app/            main.py, config.py, chat.py, prompts.py, cleaning.py
 backend/data/           profile.md
 backend/tests/          pytest tests
+scripts/                ops scripts (prune_registry.py)
 frontend/               Vite + React + TypeScript (src/, tests, e2e/)
 .github/workflows/      CI
 ```
@@ -616,3 +617,13 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - After the fix: 12 of 12 live answers within 80 words over 3 runs; a sample was role 37, career goal 60, analytics 60, skills 42. "Yes, tell me more" gave a fuller 150-word answer; an off-topic question got a 23-word decline with no offer.
   - Tests: the keyword guard gained "one or two points", "under 50 words" and "under 150 words", and failed when the new rule was removed and when the length rule was reverted. The live test is renamed `test_starter_answer_is_plain_short_and_not_a_job_invite`. 71 backend tests pass; ruff clean. No frontend change.
   - Review: three reviewer agents found no bugs. Trimmed the ceiling comment. Not changed: "in plain text" overlaps the markdown rule (approved wording; changing it would mean new live runs).
+- **E5-7 moved to Done in Jira** after PR #33 merged (Michelle).
+- **E2-5 Prune container registry automatically: Done (PR pending).**
+  - Real data checked first: `vercel vcr image ls dockerfile -F json` lists 14 `manifest` images, newest first, each tagged with a 12-character commit SHA prefix; `vercel ls --prod -F json` gives the live `meta.githubCommitSha`.
+  - `scripts/prune_registry.py`: pure `images_to_delete(images, live_sha)` (sorts by `createdAt` itself) plus a thin Vercel CLI layer; stops without deleting if no READY production deployment is found; prints each deleted tag; `--dry-run` deletes nothing. Standard library only, run with `uv run --no-project`.
+  - `.github/workflows/prune-registry.yml`: on push to `main` and by hand (`dry_run` input, on by default); one run at a time. Auth: the `VERCEL_TOKEN` secret (Michelle) plus the org and project ids as plain env values (`.vercel/` is gitignored).
+  - Decisions (2026-10-06, Michelle): look up the live image and always keep it; code in `scripts/`; add a manual trigger; minimal design plus a dry-run flag and per-image log lines.
+  - `pyproject.toml`: `scripts` added to pytest `pythonpath` and ruff `src`.
+  - Tests: `test_prune_registry.py`, 8 cases (empty, at 20 and 40, over 40, full at 50, live image old or new); images are fed oldest first, so the function must sort. Proven to fail when the live check, the 40 threshold or the sort order is removed.
+  - Dry runs on the real registry: "14 images (limit 40), deleting 0"; with limits lowered to 10/5 it would keep the newest 5 (including live `ae544bfa0fc4`) and delete the 9 oldest; from an unlinked folder with only the two id env vars it still worked (the CI setup).
+  - Review: three reviewer agents found no bugs. Fixed: dropped a test that compared the function with itself, `images_to_delete` returns images instead of ids (simpler logging), README notes the workflow and its secret. Known limit: "live" is the newest READY production deployment, so after a manual rollback in Vercel the served image could be an older one; the newest 20 still protect most rollbacks.

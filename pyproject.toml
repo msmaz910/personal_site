@@ -18,13 +18,13 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = ["backend"]
+pythonpath = ["backend", "scripts"]
 testpaths = ["backend/tests"]
 markers = ["live: calls the real OpenRouter API (run with `-m live`)"]
 addopts = "-m 'not live' --cov=app --cov-report=term-missing --cov-fail-under=80"
 
 [tool.ruff]
-src = ["backend"]
+src = ["backend", "scripts"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

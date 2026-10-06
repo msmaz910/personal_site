@@ -48,6 +48,8 @@ vercel deploy --prod   # production
 
 `.vercelignore` decides what is uploaded. Vercel ignores `.dockerignore`, so keep the two in sync.
 
+Each deploy adds an image to the container registry, which caps at 50. The `Prune registry` workflow trims it after every merge to `main` and needs the `VERCEL_TOKEN` GitHub secret. Run it by hand from the Actions tab to preview (dry run is on by default).
+
 ## Test
 
 ```
