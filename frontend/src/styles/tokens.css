@@ -28,6 +28,9 @@
   --space-7: 4rem;
 
   --size-touch: 2.75rem;
+  /* Page side padding. Phones use --space-3, set in index.css (width < 40rem), because
+     tokens.ts lists every declaration here and a second --gutter would be a duplicate. */
+  --gutter: var(--space-5);
 
   --header-height: 4.5rem;
   --chat-width: 26rem;
