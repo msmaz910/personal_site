@@ -308,6 +308,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - AC: site loads over HTTPS on the custom domain.
 - Note (E7-2): change `VITE_SITE_URL` in both `frontend/.env.*` files, then re-check the preview in LinkedIn's Post Inspector.
 - Depends on: E7-3. Owner: Michelle.
+- Decisions (2026-10-06, Michelle): `michellelewis.dev`, bought through Vercel ($9.99 first year, then $13; DNS automatic). The main address is `www.michellelewis.dev`; `michellelewis.dev` redirects to it with a 308 (set in Project > Settings > Domains, since the CLI cannot). The old `personal-site-one-gamma-42.vercel.app` keeps working, with no redirect or canonical tag. `VITE_SITE_URL` is `https://www.michellelewis.dev`.
 
 **E7-6: Final README.** Concise: what it is, how to run with uv and Docker, env variables, how to deploy, how to run tests.
 - AC: someone can follow it from a fresh clone to a running site.
@@ -338,7 +339,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - AC: CI job fails if the image does not build or the health check fails.
 - Depends on: E2-2, E1-7. Owner: Claude.
 
-**E8-6: Post-deploy smoke test.** Script that checks the live Vercel URL (pages load, `/api/health` ok).
+**E8-6: Post-deploy smoke test.** Script that checks the live site at `https://www.michellelewis.dev` (pages load, `/api/health` ok).
 - AC: script passes against the production URL; documented in README.
 - Depends on: E7-3. Owner: Claude.
 
@@ -647,3 +648,13 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Live check at no model cost: 12 rapid POSTs with a 1001-character user message (rejected before the model) returned 10 x 422, then 429 twice.
   - OpenRouter: the key already had a $5 monthly cap; Michelle raised it to $20. `GET https://openrouter.ai/api/v1/key` shows `limit: 20`, `limit_reset: monthly`. One live chat raised that key's `usage_monthly` by about $0.0095, which proves the site spends from this key.
   - Tests: `test_assistant_message_over_reply_cap_returns_422` (failed with 200 before the fix) and `test_assistant_message_at_reply_cap_is_accepted` (replaces the 51-character test); a frontend test for the 429 message, using the real firewall body, failed with the generic error before the fix. 81 backend and 101 frontend tests pass; ruff, lint and build clean.
+  - After merge: production (`38de7d2`) rejects a forged 1201-character bot reply with 422; `/api/health` ok.
+- **E7-4 moved to Done in Jira** after PR #37 merged (Michelle).
+- **E7-5 Custom domain: Done (PR pending).**
+  - Michelle bought `michellelewis.dev` in the Vercel dashboard (registrar and nameservers Vercel, expires Oct 2027). The Vercel connector could not quote it ("not authorized for scope"), and the purchase needs the registrant's address, so the dashboard was the better route.
+  - `vercel domains add www.michellelewis.dev personal-site` and `vercel domains add michellelewis.dev personal-site`; Michelle set the apex redirect in the dashboard. The certificate for `www` was issued within seconds; the first curl got no answer only because DNS had not reached this machine yet.
+  - HTTPS gate, before any code change (`.dev` is HTTPS-only): `https://www.michellelewis.dev/`, `/career` and `/api/health` return 200 and ok; `michellelewis.dev/`, `/career` and `/api/health` return 308 to the same path on `www`; plain `http://` upgrades to HTTPS first; `/og-image.png` on `www` is 200 `image/png`.
+  - `VITE_SITE_URL` changed in both `frontend/.env.*` files. The build's `og:url` and `og:image` use `https://www.michellelewis.dev`, with no `vercel.app` or `%VITE_SITE_URL%` left. 101 frontend tests pass; lint clean. No new test (agreed): the value lives in two files and changes rarely.
+  - E8-6 now names the new address. README unchanged; E7-6 rewrites it.
+  - Review: three reviewer agents found no bugs. Nothing else uses the old address or the host (no CORS, no absolute API URLs); the chat's relative `/api/chat` still works for visitors who land on the apex, since the page is redirected to `www` first.
+  - Pending (after merge): live `og:` tags on `www`, the old `vercel.app` address still 200, and LinkedIn Post Inspector on `https://www.michellelewis.dev/` (Michelle).
