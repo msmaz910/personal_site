@@ -4,12 +4,13 @@ import { Outlet, ScrollRestoration } from 'react-router'
 import ChatPanel from '../chat/ChatPanel.tsx'
 import Footer from './Footer.tsx'
 import Header from './Header.tsx'
+import PageMeta from './PageMeta.tsx'
 import { useFocusOnNavigate } from './useFocusOnNavigate.ts'
 import { useMinimized } from './useMinimized.ts'
 import { useWideScreen } from './useWideScreen.ts'
 
 /**
- * Shared frame for every page: header, page content and footer, with the chat docked
+ * Shared frame for every page: head tags, header, page content and footer, with the chat docked
  * beside them on wide screens, where it can be minimized. On narrow screens the chat
  * opens full screen and the page behind it is inert; growing to a wide screen closes it,
  * so it never reopens on its own. After a route change, focus moves to the main content,
@@ -41,6 +42,7 @@ function Layout() {
 
   return (
     <>
+      <PageMeta />
       <div className="site-top" inert={modal}>
         <Header askRef={askRef} onAsk={showChat} wide={wide} minimized={minimized} />
       </div>

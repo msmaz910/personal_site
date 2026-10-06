@@ -1,0 +1,64 @@
+<!doctype html>
+<!--
+  Link preview image (1200x630) for frontend/public/og-image.png.
+  Render: open this file in Chromium at a 1200x630 viewport and screenshot it
+  (e.g. Playwright `page.screenshot`). Fonts load from frontend/node_modules.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @font-face {
+        font-family: 'Young Serif';
+        src: url('../../frontend/node_modules/@fontsource/young-serif/files/young-serif-latin-400-normal.woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        src: url('../../frontend/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2');
+        font-weight: 100 900;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+      }
+      body {
+        position: relative;
+        background: linear-gradient(#7cc4e8, #9a8bd8 45%, #e8779a 75%, #f4a259);
+      }
+      svg {
+        position: absolute;
+        inset: 0;
+      }
+      .text {
+        position: absolute;
+        top: 110px;
+        left: 96px;
+      }
+      h1 {
+        margin: 0;
+        font: 400 88px/1.05 'Young Serif', Georgia, serif;
+        color: #1f2a33;
+      }
+      p {
+        margin: 18px 0 0;
+        font: 600 36px/1.2 'Inter', sans-serif;
+        color: #1f2a33;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="1200" height="630" viewBox="0 0 1200 630" aria-hidden="true">
+      <circle cx="930" cy="250" r="92" fill="#f5efe4" />
+      <path d="M0 520 L220 360 L360 450 L560 290 L760 470 L900 380 L1200 540 L1200 630 L0 630 Z" fill="#3f78a8" />
+      <path d="M0 600 L180 470 L330 540 L520 400 L700 560 L880 450 L1050 520 L1200 470 L1200 630 L0 630 Z" fill="#2b5f8c" />
+      <path d="M560 290 L600 326 L582 320 L566 334 L550 318 L528 316 Z" fill="#f5efe4" />
+    </svg>
+    <div class="text">
+      <h1>Michelle Lewis</h1>
+      <p>Analytics Engineering Leader</p>
+    </div>
+  </body>
+</html>

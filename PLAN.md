@@ -32,6 +32,7 @@ Assumptions to revisit if wrong: chat answers only from the profile file; Contac
 - Cleaning step (its own small function): strips reasoning blocks, HTML and script tags, and enforces a length cap. The frontend renders replies as plain text, never as raw HTML.
 - The OpenRouter client uses the `openai` SDK pointed at `https://openrouter.ai/api/v1`. Verify against current docs in E5-3.
 - Vercel containers are stateless and scale to zero after 5 idle minutes, so the first request after a quiet period is slow. Keep all state in the browser.
+- Each deployment (preview and production) stores one image in the Vercel container registry repository `dockerfile`, which caps at 50. A full registry fails the deploy with "Pushing ... was denied"; the log line "repository has reached the maximum allowed number of images" is the real cause. When it passes about 40 (each PR adds two), delete the oldest with `vercel vcr image ls dockerfile` and `vercel vcr image rm dockerfile <id>`, always keeping the live production image (tags are commit SHA prefixes). Michelle approves deletions.
 
 ## Repository layout
 
@@ -53,7 +54,7 @@ frontend/               Vite + React + TypeScript (src/, tests, e2e/)
 |---|---|---|
 | `.env` | No | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `PORT`, `MAX_MESSAGE_CHARS`, `MAX_REPLY_TOKENS`, `MAX_USER_MESSAGES`, `MAX_HISTORY_MESSAGES` |
 | `.env.example` | Yes | Same keys, placeholder values. Doubles as the checklist for Vercel settings |
-| `frontend/.env.development`, `frontend/.env.production` | Yes | Public values only: `VITE_SITE_NAME`, `VITE_LINKEDIN_URL`, `VITE_GITHUB_URL`, `VITE_CONTACT_EMAIL` |
+| `frontend/.env.development`, `frontend/.env.production` | Yes | Public values only: `VITE_SITE_NAME`, `VITE_LINKEDIN_URL`, `VITE_GITHUB_URL`, `VITE_CONTACT_EMAIL`, `VITE_SITE_URL` (absolute site address for the link-preview tags; change it in both files if the domain changes) |
 
 Rules:
 - Anything prefixed `VITE_` is visible in the browser. Never put secrets there.
@@ -251,6 +252,10 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - Decisions (2026-10-05, Michelle): fix markdown with a prompt rule only (cleaning keeps markdown, per E5-4). "Pensacola" stays in the profile. Rule wording approved as drafted (a dash at the start of a line is still fine for lists; pointing to email or LinkedIn is still fine). "DBT" becomes "dbt" to match the About page. The job-invite check matches "discuss, job, new, career or future" followed by "opportunit", not "opportunit" alone, because the profile says "cost saving opportunities". The career-goal answer may still end with "reach out via email or LinkedIn to discuss this further" (Michelle likes it). The live test is a regression spot check, not an eval.
 - Depends on: E5-2, E6-3. Owner: Claude (Michelle edits `profile.md` or approves the edit).
 
+**E5-7: Concise chat answers.** The twin puts everything it knows into each reply instead of choosing one or two points and offering more, so replies are long (raised by Michelle, 2026-10-05).
+- AC: the system prompt tells the model to pick the one or two most relevant points and offer to share more; reproduce long answers first with the live starter-question test (`backend/tests/test_live_chat.py`), then show shorter replies after the change; a unit test confirms the new rule is in the prompt.
+- Depends on: E5-6. Owner: Claude (Michelle approves the rule wording and any new word limit).
+
 ### E6 Chat frontend
 
 **E6-1: Chat card and header chat button.** The chat is visible on every page.
@@ -280,6 +285,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 **E7-2: SEO and link previews.** Page titles, meta descriptions, favicon, Open Graph image.
 - AC: each page has a unique title and description; sharing the URL in LinkedIn's Post Inspector shows title and image.
 - Depends on: E4-1 to E4-5. Owner: Claude, Michelle supplies image.
+- Decisions (2026-10-05, Michelle): one shared link preview: static Open Graph tags (plus `twitter:card` `summary_large_image`) in `frontend/index.html`, with absolute URLs from `VITE_SITE_URL`; sharing any page shows the Home card (LinkedIn does not run JavaScript). Each page's title and description live in `pages.tsx` (approved copy), pass through route `handle`, and are rendered by `PageMeta` in Layout (React 19 moves them into `<head>`); `index.html` has no static title, because React would not replace it. `/style-guide` and the not-found page are `noindex`. Favicon: an "ML" monogram, 48px PNG plus a 180px apple-touch icon (chosen over a mountain mark, which blurred at 16px). Preview image: 1200x630 mountain and sunset with dark text on the sky (variant B, chosen from rendered previews). Sources are `docs/brand/icon.html` and `docs/brand/og-image.html` (PNG, because SVG favicons cannot load web fonts).
 
 **E7-3: Production env vars on Vercel.** Enter all `.env.example` keys in Vercel project settings.
 - AC: every variable in `.env.example` exists in Vercel; live `/api/health` returns ok; a live chat message gets a real reply.
@@ -291,6 +297,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E7-5: Custom domain (optional).** Attach a domain to the Vercel project.
 - AC: site loads over HTTPS on the custom domain.
+- Note (E7-2): change `VITE_SITE_URL` in both `frontend/.env.*` files, then re-check the preview in LinkedIn's Post Inspector.
 - Depends on: E7-3. Owner: Michelle.
 
 **E7-6: Final README.** Concise: what it is, how to run with uv and Docker, env variables, how to deploy, how to run tests.
@@ -582,3 +589,14 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Browser: header one row at 360 to 390px, left edges equal, accent ring on site name, nav, card, footer, chat input, starter pill and minimize. No horizontal scroll on 15 page and width combinations. axe 4.10.3: 0 WCAG A/AA violations.
   - Review: three reviewer agents found no bugs. Fixed from their notes: the same-page focus case and the scroll position (both reproduced first). Kept: the phone `--gutter` override in `index.css` (a second declaration in `tokens.css` would duplicate the token on the style guide), noted next to the token.
   - Michelle kept the solid AI Chat button after rendered previews of outlined and soft-pill versions.
+- **E7-1 moved to Done in Jira** after PR #31 merged.
+- **E7-1 production deploy failed (2026-10-06):** "Pushing vcr.vercel.com/.../dockerfile:3bbb14026ad8 was denied". `vercel inspect --logs` showed the real cause, "repository has reached the maximum allowed number of images": the registry held exactly 50 images, one per deployment since 2026-10-01, and the E7-1 preview took the last slot. The live site kept serving E5-6. With Michelle's approval, the 40 oldest images were deleted (newest 10 kept, including the live one); Michelle redeploys. Cleanup step added under Architecture.
+- **E7-2 SEO and link previews: Done (PR pending).**
+  - Per-page titles and descriptions (decisions under the story) via `pages.tsx`, route `handle` (`RouteHead` type) and `src/layout/PageMeta.tsx` in Layout. `noindex` for `/style-guide` and the not-found page.
+  - `index.html`: Open Graph and `twitter:card` tags with `%VITE_SITE_URL%` (Vite fills it at build; no placeholder left in `dist/index.html`), the PNG favicon and apple-touch icon, no static title. `VITE_SITE_URL` added to both frontend env files. Vite's `favicon.svg` and the unused `icons.svg` deleted.
+  - Images rendered in Chromium from `docs/brand/` with the real Young Serif: `favicon-48.png` (1.3 KB), `apple-touch-icon.png` (3.3 KB), `og-image.png` (1200x630, 51 KB). Michelle chose the "ML" favicon and the mountain-sunset variant B from rendered previews; the subtitle has about 4.8:1 contrast on the sky.
+  - Tests: `PageMeta.test.tsx` pins the approved title and description per page, exactly one title and description in `<head>`, unique titles and descriptions across `pages`, `noindex` on the two hidden routes, and the swap on navigation. Proven to fail without `PageMeta`, without `noindex` on the not-found page, and with a duplicated title. 100 frontend tests pass; lint, typecheck and build clean; 67 backend tests pass.
+  - Built site served by FastAPI: `/` returns all `og:` tags with `https://personal-site-one-gamma-42.vercel.app/...`; `/og-image.png`, `/favicon-48.png` and `/apple-touch-icon.png` return 200 `image/png`; `/favicon.svg` 404. In Chromium each page shows its own title with exactly one `<title>` and one description, and navigation swaps them.
+  - Review: three reviewer agents found no bugs. Fixed: renamed the `PageMeta` type to `RouteHead` (it clashed with the component) and pointed the uniqueness test at the real `pages`.
+  - Pending (Michelle, after deploy): LinkedIn Post Inspector on the production URL should show the title and the mountain image (the AC).
+  - New story E5-7 (concise chat answers), raised by Michelle during this story.

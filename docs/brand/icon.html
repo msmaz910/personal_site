@@ -1,0 +1,43 @@
+<!doctype html>
+<!--
+  "ML" monogram for frontend/public/favicon-48.png (48x48, rounded, transparent corners)
+  and frontend/public/apple-touch-icon.png (180x180, add #square to the URL: iOS rounds it).
+  Render: open in Chromium at that viewport size and screenshot with a transparent background.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @font-face {
+        font-family: 'Young Serif';
+        src: url('../../frontend/node_modules/@fontsource/young-serif/files/young-serif-latin-400-normal.woff2');
+      }
+      html,
+      body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        background: transparent;
+      }
+      div {
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-items: center;
+        padding-top: 4vw;
+        box-sizing: border-box;
+        color: #f5efe4;
+        background: #2b5f8c;
+        border-radius: 22vw;
+        font: 400 52vw/1 'Young Serif', Georgia, serif;
+        letter-spacing: -0.02em;
+      }
+      :target {
+        border-radius: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="square">ML</div>
+  </body>
+</html>
