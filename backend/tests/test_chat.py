@@ -10,7 +10,6 @@ from openai import APIConnectionError
 from app.chat import (
     CLOSING_MESSAGE,
     FALLBACK_REPLY,
-    OPENROUTER_BASE_URL,
     UNAVAILABLE_MESSAGE,
     get_client,
 )
@@ -114,7 +113,7 @@ def test_empty_messages_are_rejected(fake):
 
 
 def test_upstream_failure_returns_clean_502(fake):
-    request = httpx2.Request("POST", OPENROUTER_BASE_URL)
+    request = httpx2.Request("POST", "https://openrouter.ai/api/v1")
     fake.error = APIConnectionError(message="SECRET-DETAIL", request=request)
 
     response = post_chat(HISTORY)

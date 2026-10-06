@@ -21,3 +21,9 @@ Profile.pdf
 
 # Built in the image, never copied in
 frontend/dist/
+
+# End-to-end tests run outside the image
+frontend/e2e/
+frontend/playwright.config.ts
+frontend/test-results/
+frontend/playwright-report/

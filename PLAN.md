@@ -53,7 +53,7 @@ frontend/               Vite + React + TypeScript (src/, tests, e2e/)
 
 | File | Committed | Contents |
 |---|---|---|
-| `.env` | No | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `PORT`, `MAX_MESSAGE_CHARS`, `MAX_REPLY_TOKENS`, `MAX_USER_MESSAGES`, `MAX_HISTORY_MESSAGES` |
+| `.env` | No | `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `OPENROUTER_BASE_URL`, `PORT`, `MAX_MESSAGE_CHARS`, `MAX_REPLY_TOKENS`, `MAX_USER_MESSAGES`, `MAX_HISTORY_MESSAGES` |
 | `.env.example` | Yes | Same keys, placeholder values. Doubles as the checklist for Vercel settings |
 | `frontend/.env.development`, `frontend/.env.production` | Yes | Public values only: `VITE_SITE_NAME`, `VITE_LINKEDIN_URL`, `VITE_GITHUB_URL`, `VITE_CONTACT_EMAIL`, `VITE_SITE_URL` (absolute site address for the link-preview tags; change it in both files if the domain changes) |
 
@@ -319,6 +319,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 **E8-1: Playwright end-to-end tests.** Run against the built container with the model mocked.
 - AC: tests visit all 5 pages, reload on a deep link, open the chat, send a message and see a reply; run in CI.
 - Depends on: E2-2, E6-2. Owner: Claude.
+- Decisions (2026-10-06, Michelle): the model is mocked by a fake OpenRouter server (`frontend/e2e/fake-openrouter.ts`), not in the browser, so the real backend chat code runs in the container; `OPENROUTER_BASE_URL` became a setting (default `https://openrouter.ai/api/v1`) to allow it. Tests run on desktop Chrome and a Pixel 7 phone. Playwright starts the fake server and the pre-built container itself (`npm run e2e:build`, then `npm run e2e`), on ports 8100 and 8101 so a local server on 8000 cannot be tested by mistake.
 
 **E8-2: Accessibility checks.** Add axe checks to the Playwright tests.
 - AC: no serious or critical axe violations on any page or on the open chat panel.
@@ -666,3 +667,12 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - New sections: what the site is with the live address, prerequisites, quick start, dev mode, environment variable table, editing content, cost protection. Live test command fixed to `uv run pytest -m live --no-cov`. Docker, deploy and CI text kept.
   - Followed the new README from a fresh clone: quick start (on port 8001, since Michelle's own server held 8000) gave health ok, all five pages 200 and a real chat reply; dev mode served `localhost:5173` and proxied `/api/health` to port 8000; `uv run pytest` 81 passed, the live command with no tests selected passed the coverage step, ruff clean, 101 frontend tests, lint and typecheck clean; the Docker build and run served health, `/` and `/career`. The clone, which held a copy of the key, was deleted.
   - Review: three reviewer agents found no errors; every command, path and default matches the repo. Fixed: dev mode now shows `cd frontend && npm run dev` (it only said "in frontend/"), the quick-start notes are short bullets, and the cost bullet that repeated the env table is gone. Kept (Michelle): the `PLAN.md` pointer, the manual `vercel deploy` commands and the registry note, which are for the owner.
+- **E7-6 moved to Done in Jira** after PR #39 merged (Michelle). Epic E7 (Launch) is complete.
+- **E8-1 Playwright end-to-end tests: Done (PR pending).**
+  - Backend: `OPENROUTER_BASE_URL` replaces the hard-coded constant in `chat.py` (`get_client` reads the setting). `test_settings_load_from_env` failed first (no such attribute), then passed. Added to `.env.example`, the README table, the Environment files table, and Vercel Production and Preview with the default value (read back cleanly with `env -i`).
+  - Playwright 1.63.0 (pinned). `e2e/` holds `constants.ts`, `fake-openrouter.ts` (answers `POST /v1/chat/completions` with `<think>REASONING</think>ANSWER` and records each request at `GET /requests`), `site.ts` (shared `pages`, `openPage`, `openChat`, `ask`, ready for E8-2), `site.spec.ts` and `chat.spec.ts`. The container gets `--add-host=host.docker.internal:host-gateway` so it can reach the fake on the host, locally and on Linux CI.
+  - Setup fixes, each checked: Vitest picked up `e2e/*.spec.ts` (a probe file failed), so it now includes only `src/**/*.test.{ts,tsx}`; `tsconfig.node.json` now type-checks `e2e/` and `playwright.config.ts` (confirmed with `--listFilesOnly`); `.dockerignore` and `.vercelignore` (still in sync) keep the e2e files out of the image; `frontend/.gitignore` ignores `test-results` and `playwright-report`. `fsevents` install script left unapproved (optional macOS watcher).
+  - 18 tests pass in about 4 seconds (9 per screen): each page loads, nav links reach every page (through the Menu button on the phone), a deep link survives a reload, a sent message shows the cleaned reply, and the container sent the system prompt first, the configured model, and the question last. No container is left running afterwards.
+  - Proven to fail: with the fake's reasoning outside `<think>`, the reply test fails on "Secret plan for the visitor."; with the container on another model, the request test fails with `other/model`.
+  - CI: new `e2e` job (Node 26, `npx playwright install --with-deps chromium`, image build, tests, traces uploaded on failure). 81 backend and 101 frontend tests pass; ruff, lint and typecheck clean.
+  - Review: three reviewer agents found no bugs; the Linux CI points (the container reaching the fake via `host-gateway`, SIGTERM shutdown with `--rm`, the image build without the e2e files) were reasoned through and are proven by the PR's CI run. Fixed: the README's CI sentence now mentions end-to-end checks; the request test sends a question unique to its project and finds that exact request, instead of reading the last one received (four chat tests share one fake server); proven to fail when the request is missing.

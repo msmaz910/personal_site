@@ -11,7 +11,6 @@ from app.cleaning import MAX_REPLY_CHARS, clean_reply
 from app.config import Settings, get_settings
 from app.prompts import build_system_prompt, load_profile
 
-OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 UNAVAILABLE_MESSAGE = (
     "The chat is unavailable right now. Please try again later, "
     "or reach Michelle by email or on LinkedIn."
@@ -50,9 +49,10 @@ class ChatResponse(BaseModel):
 @lru_cache
 def get_client() -> OpenAI:
     """Return the shared OpenRouter client."""
+    settings = get_settings()
     return OpenAI(
-        api_key=get_settings().openrouter_api_key,
-        base_url=OPENROUTER_BASE_URL,
+        api_key=settings.openrouter_api_key,
+        base_url=settings.openrouter_base_url,
         timeout=30,
         max_retries=1,
     )
