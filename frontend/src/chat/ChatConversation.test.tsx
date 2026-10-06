@@ -115,6 +115,18 @@ test.each([
   expect(await screen.findByRole('alert')).toHaveTextContent('Something went wrong. Please try again.')
 })
 
+test('a rate limit response asks the visitor to wait a minute', async () => {
+  const firewallBody = { error: { code: '429', message: 'Too Many Requests' } }
+  fetchMock.mockResolvedValueOnce(Response.json(firewallBody, { status: 429 }))
+  renderAt('/')
+
+  await ask('Hi')
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    "You're sending messages quickly. Please wait a minute and try again.",
+  )
+  expect(box()).toHaveValue('Hi')
+})
+
 test('the closing message locks the box and Send', async () => {
   fetchMock.mockResolvedValueOnce(reply('Thank you for the great conversation!', true))
   renderAt('/')

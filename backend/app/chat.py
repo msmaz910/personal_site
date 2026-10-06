@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
-from app.cleaning import clean_reply
+from app.cleaning import MAX_REPLY_CHARS, clean_reply
 from app.config import Settings, get_settings
 from app.prompts import build_system_prompt, load_profile
 
@@ -59,9 +59,14 @@ def get_client() -> OpenAI:
 
 
 def check_message_lengths(settings: Settings, messages: list[Message]) -> None:
-    """Raise a 422 if any user message is longer than the configured limit."""
+    """Raise a 422 if a user message or a bot reply is longer than its limit.
+
+    Bot replies are cut to MAX_REPLY_CHARS by `clean_reply`, so a longer one
+    was not sent by this API.
+    """
     limit = settings.max_message_chars
-    if any(m.role == "user" and len(m.content) > limit for m in messages):
+    limits = {"user": limit, "assistant": MAX_REPLY_CHARS}
+    if any(len(m.content) > limits[m.role] for m in messages):
         raise HTTPException(
             status_code=422,
             detail=f"Your message is too long. Please keep it under {limit} "
@@ -79,7 +84,7 @@ def get_reply(
 ) -> ChatResponse:
     """Send the system prompt and conversation to the model; return the cleaned reply.
 
-    Rejects oversized user messages with a 422, and returns CLOSING_MESSAGE
+    Rejects oversized messages with a 422, and returns CLOSING_MESSAGE
     with `limit_reached` set, without calling the model, once the user message
     limit is passed.
     Only the newest `max_history_messages` messages are sent. Falls back to

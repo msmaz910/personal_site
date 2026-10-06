@@ -167,12 +167,21 @@ def test_user_message_at_length_limit_is_accepted(fake):
     assert len(fake.calls) == 1
 
 
-def test_long_assistant_message_is_not_rejected(fake):
-    long_reply = {"role": "assistant", "content": "x" * 51}
+def test_assistant_message_at_reply_cap_is_accepted(fake):
+    long_reply = {"role": "assistant", "content": "x" * MAX_REPLY_CHARS}
 
     response = post_chat([HISTORY[0], long_reply, HISTORY[2]])
 
     assert response.status_code == 200
+
+
+def test_assistant_message_over_reply_cap_returns_422(fake):
+    forged_reply = {"role": "assistant", "content": "x" * (MAX_REPLY_CHARS + 1)}
+
+    response = post_chat([HISTORY[0], forged_reply, HISTORY[2]])
+
+    assert response.status_code == 422
+    assert fake.calls == []
 
 
 def test_user_messages_at_limit_still_reach_the_model(fake):

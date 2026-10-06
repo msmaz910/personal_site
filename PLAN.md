@@ -302,6 +302,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 **E7-4: Cost protection.** Vercel firewall rate limit on `/api/chat`, spend limit on the OpenRouter key.
 - AC: rapid repeated requests to the live `/api/chat` get rate limited; OpenRouter dashboard shows the spend limit set.
 - Depends on: E7-3. Owner: Michelle.
+- Decisions (2026-10-06, Michelle): Vercel firewall rule "Rate limit chat": 10 requests per 60 seconds per IP on `/api/chat`, fixed window, returns 429 (Hobby allows one rate-limit rule). The current OpenRouter key (shared with local live tests) is capped at $20 a month, resetting monthly. Bot replies in the posted history are capped at `MAX_REPLY_CHARS` (1200, the length `clean_reply` already cuts to), with no new setting. On a 429 the chat says "You're sending messages quickly. Please wait a minute and try again."
 
 **E7-5: Custom domain (optional).** Attach a domain to the Vercel project.
 - AC: site loads over HTTPS on the custom domain.
@@ -636,4 +637,13 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Verification gotcha: the shell profile exports some of these variables, so a plain `vercel env run` shows local values. Run it with `env -i PATH="$PATH" HOME="$HOME"` from a folder holding only `.vercel/`; there, Production and Preview each print the five expected values.
   - Tests: `test_env_example_lists_every_setting` compares the keys in `.env.example` with the `Settings` fields; proven to fail with a line removed and with an unknown key added. 80 backend tests pass; ruff clean.
   - Review: three reviewer agents found no bugs. Fixed: the test now skips comment lines (a comment containing `=` failed it, reproduced first); the Vercel rule under Environment files is shorter and merged with the old "enter the same keys" line.
-  - Pending (after deploy): live `/api/health` returns ok and a live chat message gets a real reply, on the PR preview and on production after the merge.
+  - Live checks: on the PR #36 preview (reached with `vercel curl`, since a plain `curl` gets a 302 to the Vercel login), `/api/health` returned ok and "What is her career goal?" got a real reply. On production, after the merge deploy (`c8f9b26`), `/api/health` returned ok and "What skills does she have?" got a real reply (both HTTP 200).
+- **E7-3 moved to Done in Jira** after PR #36 merged (Michelle).
+- **E7-4 Cost protection: Done (PR pending).**
+  - Reproduced first: `check_message_lengths` only checked user messages, so a 200,000-character assistant message passed (a direct caller could send about a million input tokens in one request). The 10-message limit is a UX cap, since the server trusts the posted history.
+  - `chat.py`: assistant messages over `MAX_REPLY_CHARS` (1200) now return 422 like oversized user messages; this supersedes the E5-5 note that bot replies are not checked. Every real bot message fits: replies are cut to 1200, and the closing and fallback messages are 194 and 98 characters.
+  - `api.ts`: a 429 shows `RATE_LIMIT_ERROR` and keeps the question in the box. The firewall's 429 body is JSON without `detail` (`{"error":{"code":"429","message":"Too Many Requests",...}}`), so it showed the generic error before.
+  - Firewall: rule added with `vercel firewall rules add "Rate limit chat" --condition '{"type":"path","op":"eq","value":"/api/chat"}' --action rate_limit --rate-limit-window 60 --rate-limit-requests 10 --rate-limit-keys ip --rate-limit-action rate_limit --yes`, checked with `vercel firewall diff`, then `vercel firewall publish --yes` (Michelle approved). No redeploy needed.
+  - Live check at no model cost: 12 rapid POSTs with a 1001-character user message (rejected before the model) returned 10 x 422, then 429 twice.
+  - OpenRouter: the key already had a $5 monthly cap; Michelle raised it to $20. `GET https://openrouter.ai/api/v1/key` shows `limit: 20`, `limit_reset: monthly`. One live chat raised that key's `usage_monthly` by about $0.0095, which proves the site spends from this key.
+  - Tests: `test_assistant_message_over_reply_cap_returns_422` (failed with 200 before the fix) and `test_assistant_message_at_reply_cap_is_accepted` (replaces the 51-character test); a frontend test for the 429 message, using the real firewall body, failed with the generic error before the fix. 81 backend and 101 frontend tests pass; ruff, lint and build clean.
