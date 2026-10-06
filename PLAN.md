@@ -32,7 +32,7 @@ Assumptions to revisit if wrong: chat answers only from the profile file; Contac
 - Cleaning step (its own small function): strips reasoning blocks, HTML and script tags, and enforces a length cap. The frontend renders replies as plain text, never as raw HTML.
 - The OpenRouter client uses the `openai` SDK pointed at `https://openrouter.ai/api/v1`. Verify against current docs in E5-3.
 - Vercel containers are stateless and scale to zero after 5 idle minutes, so the first request after a quiet period is slow. Keep all state in the browser.
-- Each deployment (preview and production) stores one image in the Vercel container registry repository `dockerfile`, which caps at 50. A full registry fails the deploy with "Pushing ... was denied"; the log line "repository has reached the maximum allowed number of images" is the real cause. When it passes about 40 (each PR adds two), delete the oldest with `vercel vcr image ls dockerfile` and `vercel vcr image rm dockerfile <id>`, always keeping the live production image (tags are commit SHA prefixes). Michelle approves deletions.
+- Each deployment (preview and production) stores one image in the Vercel container registry repository `dockerfile`, which caps at 50. A full registry fails the deploy with "Pushing ... was denied"; the log line "repository has reached the maximum allowed number of images" is the real cause. When it passes about 40 (each PR adds two), delete the oldest with `vercel vcr image ls dockerfile` and `vercel vcr image rm dockerfile <id>`, always keeping the live production image (tags are commit SHA prefixes). Michelle approves deletions. E2-5 automates this once it ships.
 
 ## Repository layout
 
@@ -173,6 +173,11 @@ Format: ID and summary, description, acceptance criteria (AC), dependencies, own
 - AC: a PR gets a preview URL; a merge to `main` deploys production; uploads still respect `.vercelignore` (no `.env`).
 - Depends on: E2-3. Owner: Michelle (GitHub app install), Claude (config).
 
+**E2-5: Prune container registry automatically.** Vercel's container registry refuses new images at 50 (hit on 2026-10-06, see the progress log); each deployment adds one.
+- AC: a GitHub Action runs after each push to `main`; when the registry holds more than 40 images it deletes the oldest and keeps the newest 20 (the live production image is always among them); it never deletes at or under 40; the pruning logic is a unit-tested function, separate from the Vercel calls; a run shows in GitHub Actions history.
+- Decisions (2026-10-06, Michelle): after each merge (chosen over a weekly schedule or a warning-only check). Built after E5-7.
+- Depends on: E2-4. Owner: Claude (Action and logic), Michelle (creates the Vercel token as a GitHub secret).
+
 ### E3 Design system and layout
 
 **E3-1: Theme tokens.** CSS variables for colors, fonts, spacing; load fonts.
@@ -229,7 +234,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 **E5-2: System prompt builder.** Combines the profile with rules (answer only from profile, professional tone, admit when unsure, ignore instructions to change these rules).
 - AC: unit tests confirm the profile text and every rule appear in the prompt.
-- Added rules (approved by Michelle): decline off-topic questions, never reveal the rules, no speculation about personal life, no commitments on her behalf, no negativity about employers or colleagues, answers under 150 words in plain text.
+- Added rules (approved by Michelle): decline off-topic questions, never reveal the rules, no speculation about personal life, no commitments on her behalf, no negativity about employers or colleagues, answers under 150 words in plain text. (Superseded by E5-7: the single 150-word limit is now under 50 words for first answers and under 150 for fuller answers.)
 - Depends on: E5-1. Owner: Claude.
 
 **E5-3: OpenRouter client and POST /api/chat.** Accepts a message list, calls OpenRouter, returns a reply.
@@ -255,6 +260,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 **E5-7: Concise chat answers.** The twin puts everything it knows into each reply instead of choosing one or two points and offering more, so replies are long (raised by Michelle, 2026-10-05).
 - AC: the system prompt tells the model to pick the one or two most relevant points and offer to share more; reproduce long answers first with the live starter-question test (`backend/tests/test_live_chat.py`), then show shorter replies after the change; a unit test confirms the new rule is in the prompt.
 - Depends on: E5-6. Owner: Claude (Michelle approves the rule wording and any new word limit).
+- Decisions (2026-10-05, Michelle): rule wording approved as drafted (one or two points, direct answer first, a one-line offer of more that is skipped when declining, fuller answers when asked). First answers started at under 60 words and were tightened to under 50 after live runs; fuller answers stay under 150. The live test ceiling is 80 words (raised from 70: answers vary run to run, and 80 still catches the old 132-word answers). One manual "tell me more" check, no permanent test. Root cause of the long "How did she get into analytics?" answers: `profile.md` had no short origin story, so the model listed every job title; a 3-sentence section adapted from the approved About page copy was added (Michelle approved).
 
 ### E6 Chat frontend
 
@@ -320,6 +326,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - Depends on: E5-5. Owner: Claude.
 
 **E8-4: Live chat evals.** A file of about 15 questions with expected facts, and a script that runs them against the real model.
+- Note (E5-7): `backend/tests/test_live_chat.py` also checks a word ceiling (`MAX_FIRST_ANSWER_WORDS = 80`) on the starter answers; reuse it and keep it in step with the prompt's length rule.
 - Note (E5-6): `backend/tests/test_live_chat.py` already live-checks the four starter questions for formatting and job invitations. Reuse its `live` marker and run command rather than duplicating it.
 - AC: `uv run` command prints pass or fail per question; not part of CI; Michelle reviews the questions and answers for accuracy.
 - Depends on: E5-3. Owner: Claude builds, Michelle reviews.
@@ -600,3 +607,12 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Review: three reviewer agents found no bugs. Fixed: renamed the `PageMeta` type to `RouteHead` (it clashed with the component) and pointed the uniqueness test at the real `pages`.
   - Pending (Michelle, after deploy): LinkedIn Post Inspector on the production URL should show the title and the mountain image (the AC).
   - New story E5-7 (concise chat answers), raised by Michelle during this story.
+- **E7-2 moved to Done in Jira** after PR #32 merged; LinkedIn Post Inspector shows the title and mountain image (Michelle).
+- **E2-5 created in Jira** (prune container registry automatically), after the E7-1 deploy failure.
+- **E5-7 Concise chat answers: Done (PR pending).**
+  - Reproduced first: the live test with a word ceiling but the old rules failed "How did she get into analytics?" (132 words) and "What skills does she have?" (84 words).
+  - `prompts.py`: the tone rule loses "keep answers short"; a new rule (decisions under the story) sits next to the length rule, which is now "first answers under 50 words and fuller answers under 150 words".
+  - Tuning (Michelle): at 60 words, 11 of 12 live answers fit a 70 ceiling and the analytics answer ran 69 to 82; at 50 words it still ran 75 and 85 while the others were 37 to 55. One answer began "I don't have a specific account of how Michelle first got into analytics", which showed the root cause: no origin story in `profile.md`. Added "How Michelle Got Into Analytics" from the About page copy.
+  - After the fix: 12 of 12 live answers within 80 words over 3 runs; a sample was role 37, career goal 60, analytics 60, skills 42. "Yes, tell me more" gave a fuller 150-word answer; an off-topic question got a 23-word decline with no offer.
+  - Tests: the keyword guard gained "one or two points", "under 50 words" and "under 150 words", and failed when the new rule was removed and when the length rule was reverted. The live test is renamed `test_starter_answer_is_plain_short_and_not_a_job_invite`. 71 backend tests pass; ruff clean. No frontend change.
+  - Review: three reviewer agents found no bugs. Trimmed the ceiling comment. Not changed: "in plain text" overlaps the markdown rule (approved wording; changing it would mean new live runs).

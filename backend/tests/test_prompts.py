@@ -42,7 +42,16 @@ def test_rules_come_before_profile():
     assert prompt.index(RULES[-1]) < prompt.index("SAMPLE-PROFILE")
 
 
-@pytest.mark.parametrize("keyword", ["markdown", "job opportunities"])
+@pytest.mark.parametrize(
+    "keyword",
+    [
+        "markdown",
+        "job opportunities",
+        "one or two points",
+        "under 50 words",
+        "under 150 words",
+    ],
+)
 def test_system_prompt_keeps_answer_polish_rules(keyword):
     assert keyword in build_system_prompt("profile text")
 
