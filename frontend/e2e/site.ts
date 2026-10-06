@@ -13,9 +13,14 @@ export function h1(page: Page, name: string) {
   return page.getByRole('heading', { level: 1, name, exact: true })
 }
 
+/** Opens the phone menu, which hides the main nav links. */
+export async function openMenu(page: Page) {
+  await page.getByRole('button', { name: 'Menu' }).click()
+}
+
 /** Clicks a main nav link. On a phone the links sit behind the Menu button. */
 export async function openPage(page: Page, label: string, isMobile: boolean) {
-  if (isMobile) await page.getByRole('button', { name: 'Menu' }).click()
+  if (isMobile) await openMenu(page)
   await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: label, exact: true }).click()
 }
 

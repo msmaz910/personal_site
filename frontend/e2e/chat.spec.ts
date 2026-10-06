@@ -30,3 +30,15 @@ test('the container sends the system prompt, model and question to the model', a
   expect(body?.model).toBe(FAKE_MODEL)
   expect(body?.messages[0].role).toBe('system')
 })
+
+test('the input placeholder uses the muted text colour', async ({ page, isMobile }) => {
+  await page.goto('/')
+  const input = (await openChat(page, isMobile)).getByLabel('Your question')
+
+  const { text, placeholder } = await input.evaluate((el) => ({
+    text: getComputedStyle(el).color,
+    placeholder: getComputedStyle(el, '::placeholder').color,
+  }))
+
+  expect(placeholder).toBe(text)
+})
