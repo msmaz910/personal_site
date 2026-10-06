@@ -1,0 +1,34 @@
+name: Prune registry
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Print the plan without deleting anything
+        type: boolean
+        default: true
+
+concurrency:
+  group: prune-registry
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: team_daUlTf2nz7pxfZJG1XpYOZtw
+      VERCEL_PROJECT_ID: prj_K4IxYgBT3eaoIadKyJ89PZs8RcGh
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      - run: npm install --global vercel@62
+      - run: uv run --no-project scripts/prune_registry.py ${{ inputs.dry_run && '--dry-run' || '' }}
