@@ -42,7 +42,7 @@ main {
   width: 100%;
   max-width: 48rem;
   margin: 0 auto;
-  padding: var(--space-6) var(--space-3);
+  padding: var(--space-6) var(--gutter);
   box-sizing: border-box;
 }
 
@@ -53,7 +53,7 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-5);
+  padding: var(--space-3) var(--gutter);
 }
 
 .site-header {
@@ -124,23 +124,24 @@ main {
   cursor: pointer;
 }
 
-.button:focus-visible,
-.nav-toggle:focus-visible,
-.chat-dismiss:focus-visible,
-.chat-form input:focus-visible,
-.chat-log:focus-visible,
-.site-header nav a:focus-visible {
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+.chat-log:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
 @media (width < 40rem) {
+  :root {
+    --gutter: var(--space-3);
+  }
+
   .site-header {
-    padding: var(--space-3);
     column-gap: var(--space-2);
   }
 
-  .ask-button {
+  .site-header .ask-button {
     padding: 0 var(--space-3);
   }
 
@@ -165,6 +166,12 @@ main {
     display: flex;
     align-items: center;
     min-height: var(--size-touch);
+  }
+}
+
+@media (width < 24rem) {
+  .ask-button svg {
+    display: none;
   }
 }
 
@@ -449,6 +456,10 @@ main {
 }
 
 .chat-panel:focus {
+  outline: none;
+}
+
+main:focus {
   outline: none;
 }
 
