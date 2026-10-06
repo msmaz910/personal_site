@@ -60,8 +60,9 @@ frontend/               Vite + React + TypeScript (src/, tests, e2e/)
 Rules:
 - Anything prefixed `VITE_` is visible in the browser. Never put secrets there.
 - `.dockerignore` excludes `.env` so keys are never baked into the image.
-- Locally: `docker run --env-file .env ...`. On Vercel: enter the same keys in project settings. `.env` is never uploaded.
-- Add a variable to `.env.example` whenever one is added to `.env`.
+- Locally: `docker run --env-file .env ...`. `.env` is never uploaded.
+- On Vercel: every key in `.env.example` must exist for Production and Preview. The API key is a Secret; the rest are plain values. Check with `vercel env ls`; changes apply on the next deploy.
+- Add a variable to `.env.example` whenever one is added to `.env`. `test_config.py` fails if `.env.example` and `Settings` list different keys.
 - Vercel defaults containers to port 80. Set `PORT` in Vercel project settings to match the app.
 
 ## Visual theme
@@ -628,3 +629,11 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Dry runs on the real registry: "14 images (limit 40), deleting 0"; with limits lowered to 10/5 it would keep the newest 5 (including live `ae544bfa0fc4`) and delete the 9 oldest; from an unlinked folder with only the two id env vars it still worked (the CI setup).
   - Review: three reviewer agents found no bugs. Fixed: dropped a test that compared the function with itself, `images_to_delete` returns images instead of ids (simpler logging), README notes the workflow and its secret. Known limit: "live" is the newest READY production deployment, so after a manual rollback in Vercel the served image could be an older one; the newest 20 still protect most rollbacks.
 - **E2-5 follow-up: uv cache warning.** The first `Prune registry` run passed ("15 images (limit 40), deleting 0") but warned "Unable to reserve cache". Cause, from the logs: CI's `backend` job and the `prune` job started together with the same `setup-uv` cache key (built from `pyproject.toml` and `uv.lock`); `backend` saved first, so `prune` could not. The prune script is standard library only (`--no-project`), so the cache gave it nothing: `enable-cache: false` in the prune workflow (Michelle chose this over ignoring the warning or restore-only).
+- **E7-3 Production env vars on Vercel: Done (PR pending).**
+  - Before: `vercel env ls` showed only `OPENROUTER_API_KEY` (Production, Preview, Development) and `PORT` (Production, Preview). Missing: `OPENROUTER_MODEL`, `MAX_MESSAGE_CHARS`, `MAX_REPLY_TOKENS`, `MAX_USER_MESSAGES`, `MAX_HISTORY_MESSAGES`. Live `/api/health` and chat already worked, because the code defaults in `config.py` equal the `.env.example` values.
+  - Decisions (2026-10-06, Michelle): add all five with the `.env.example` values; Production and Preview only; Claude adds them with `vercel env add` (plain Config values, no secrets); checklist under Environment files plus one README line; add a test that `.env.example` matches `Settings`. `/api/health` stays a constant: it proves the container is up, and a chat reply is the real proof of the key.
+  - Added one variable first, then the rest, with `vercel env add NAME production --value VALUE --type config --yes` and again with `preview`. `vercel env ls` now shows all 7 keys for Production and Preview.
+  - Verification gotcha: the shell profile exports some of these variables, so a plain `vercel env run` shows local values. Run it with `env -i PATH="$PATH" HOME="$HOME"` from a folder holding only `.vercel/`; there, Production and Preview each print the five expected values.
+  - Tests: `test_env_example_lists_every_setting` compares the keys in `.env.example` with the `Settings` fields; proven to fail with a line removed and with an unknown key added. 80 backend tests pass; ruff clean.
+  - Review: three reviewer agents found no bugs. Fixed: the test now skips comment lines (a comment containing `=` failed it, reproduced first); the Vercel rule under Environment files is shorter and merged with the old "enter the same keys" line.
+  - Pending (after deploy): live `/api/health` returns ok and a live chat message gets a real reply, on the PR preview and on production after the merge.
