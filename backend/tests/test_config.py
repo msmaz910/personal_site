@@ -1,9 +1,13 @@
 """Tests for settings loaded from environment variables."""
 
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
 from app.config import Settings
+
+ENV_EXAMPLE = Path(__file__).parents[2] / ".env.example"
 
 
 def test_settings_load_from_env(monkeypatch):
@@ -31,3 +35,12 @@ def test_missing_api_key_fails_clearly(monkeypatch):
 
     with pytest.raises(ValidationError, match="openrouter_api_key"):
         Settings(_env_file=None)
+
+
+def test_env_example_lists_every_setting():
+    lines = ENV_EXAMPLE.read_text().splitlines()
+    keys = {
+        line.split("=")[0] for line in lines if "=" in line and not line.startswith("#")
+    }
+
+    assert keys == {name.upper() for name in Settings.model_fields}
