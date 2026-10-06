@@ -9,6 +9,10 @@ Director, Data Science & Enterprise Analytics at Insperity. Based in Pensacola, 
 
 Intrinsically motivated analytics engineer (SQL, R, Python) with a successful history of building and deploying multi-source dashboards and reporting packages, creating complex customer health variables, identifying and implementing process improvements, and distilling information for senior leadership. Passionate about helping teams use data to operate efficiently and provide a best in class customer experience.
 
+## How Michelle Got Into Analytics
+
+Michelle took an unusual route into analytics engineering. She studied art and art history, earned a degree in education and an MBA in Finance and Information Systems at Baruch College, then worked on Wall Street data teams and in customer success before finding her home in analytics engineering. Each step shaped how she works: design sense for dashboards, teaching complex ideas simply, and close attention to the people who use the data.
+
 ## Top Skills
 
 - Data Modeling
