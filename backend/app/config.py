@@ -12,6 +12,7 @@ class Settings(BaseSettings):
 
     openrouter_api_key: str
     openrouter_model: str = "anthropic/claude-sonnet-5"
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
     port: int = 8000
     max_message_chars: int = 1000
     max_reply_tokens: int = 500

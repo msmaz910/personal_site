@@ -13,6 +13,7 @@ ENV_EXAMPLE = Path(__file__).parents[2] / ".env.example"
 def test_settings_load_from_env(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
     monkeypatch.setenv("OPENROUTER_MODEL", "test/model")
+    monkeypatch.setenv("OPENROUTER_BASE_URL", "http://fake/v1")
     monkeypatch.setenv("PORT", "9000")
     monkeypatch.setenv("MAX_MESSAGE_CHARS", "500")
     monkeypatch.setenv("MAX_REPLY_TOKENS", "300")
@@ -23,6 +24,7 @@ def test_settings_load_from_env(monkeypatch):
 
     assert settings.openrouter_api_key == "test-key"
     assert settings.openrouter_model == "test/model"
+    assert settings.openrouter_base_url == "http://fake/v1"
     assert settings.port == 9000
     assert settings.max_message_chars == 500
     assert settings.max_reply_tokens == 300

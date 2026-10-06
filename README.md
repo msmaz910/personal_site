@@ -45,6 +45,7 @@ Set in `.env` (see `.env.example`).
 | --- | --- | --- |
 | `OPENROUTER_API_KEY` | none (required) | Your OpenRouter key |
 | `OPENROUTER_MODEL` | `anthropic/claude-sonnet-5` | Model used for chat |
+| `OPENROUTER_BASE_URL` | `https://openrouter.ai/api/v1` | Model API address (the end-to-end tests point it at a fake) |
 | `PORT` | `8000` | Port the container listens on |
 | `MAX_MESSAGE_CHARS` | `1000` | Longest message a visitor can send |
 | `MAX_REPLY_TOKENS` | `500` | Longest reply the model may write |
@@ -108,4 +109,12 @@ npm run lint             # oxlint
 npm run typecheck        # tsc
 ```
 
-CI (`.github/workflows/ci.yml`) runs the backend and frontend checks on every PR and on pushes to `main`. It never calls OpenRouter.
+End-to-end tests (from `frontend/`; needs Docker running) build the image, then run Playwright against the container with a fake model server in place of OpenRouter:
+
+```
+npx playwright install chromium   # once
+npm run e2e:build                 # rebuild after app changes
+npm run e2e
+```
+
+CI (`.github/workflows/ci.yml`) runs the backend, frontend and end-to-end checks on every PR and on pushes to `main`. It never calls OpenRouter.
