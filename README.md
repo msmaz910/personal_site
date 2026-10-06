@@ -109,7 +109,7 @@ npm run lint             # oxlint
 npm run typecheck        # tsc
 ```
 
-End-to-end tests (from `frontend/`; needs Docker running) build the image, then run Playwright against the container with a fake model server in place of OpenRouter:
+End-to-end tests (from `frontend/`; needs Docker running) build the image, then run Playwright against the container with a fake model server in place of OpenRouter. The run includes axe accessibility scans (WCAG A/AA) of every page and the chat:
 
 ```
 npx playwright install chromium   # once

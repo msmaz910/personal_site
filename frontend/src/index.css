@@ -603,6 +603,11 @@ main:focus {
   border-radius: var(--space-2);
 }
 
+.chat-form input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
 .chat-form :disabled {
   cursor: not-allowed;
   opacity: 0.6;
