@@ -74,6 +74,43 @@ def check_message_lengths(settings: Settings, messages: list[Message]) -> None:
         )
 
 
+def check_message_count(settings: Settings, messages: list[Message]) -> None:
+    """Raise a 422 if the history is longer than a real chat can be.
+
+    The most is every allowed user message, the replies between them, and one
+    final user message that gets the closing message.
+    """
+    if len(messages) > 2 * settings.max_user_messages + 1:
+        raise HTTPException(
+            status_code=422,
+            detail="This conversation is too long. Please start a new chat.",
+        )
+
+
+def check_not_blank(messages: list[Message]) -> None:
+    """Raise a 422 if any message is empty or only whitespace."""
+    if any(not m.content.strip() for m in messages):
+        raise HTTPException(
+            status_code=422, detail="Your message is empty. Please type a question."
+        )
+
+
+def check_ends_with_user(messages: list[Message]) -> None:
+    """Raise a 422 if the newest message is not from the visitor."""
+    if messages[-1].role != "user":
+        raise HTTPException(
+            status_code=422, detail="The last message must be from you."
+        )
+
+
+def validate_messages(settings: Settings, messages: list[Message]) -> None:
+    """Run every request check, cheapest first, before any model call."""
+    check_message_count(settings, messages)
+    check_not_blank(messages)
+    check_ends_with_user(messages)
+    check_message_lengths(settings, messages)
+
+
 def is_over_user_limit(settings: Settings, messages: list[Message]) -> bool:
     """Return True when the history holds more user messages than allowed."""
     return sum(m.role == "user" for m in messages) > settings.max_user_messages
@@ -84,13 +121,13 @@ def get_reply(
 ) -> ChatResponse:
     """Send the system prompt and conversation to the model; return the cleaned reply.
 
-    Rejects oversized messages with a 422, and returns CLOSING_MESSAGE
-    with `limit_reached` set, without calling the model, once the user message
-    limit is passed.
+    Rejects invalid requests (too many, blank, too long, or not ending on a user
+    message) with a 422, and returns CLOSING_MESSAGE with `limit_reached` set,
+    without calling the model, once the user message limit is passed.
     Only the newest `max_history_messages` messages are sent. Falls back to
     FALLBACK_REPLY when nothing is left after cleaning.
     """
-    check_message_lengths(settings, messages)
+    validate_messages(settings, messages)
     if is_over_user_limit(settings, messages):
         return ChatResponse(reply=CLOSING_MESSAGE, limit_reached=True)
     system = {"role": "system", "content": build_system_prompt(load_profile())}
