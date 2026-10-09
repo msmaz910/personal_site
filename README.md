@@ -98,6 +98,7 @@ The starter questions live in `frontend/src/data/chat.ts` and are copied into `b
 ```
 uv run pytest                    # unit tests with coverage (80% floor)
 uv run pytest -m live --no-cov   # real OpenRouter calls (billed; needs OPENROUTER_API_KEY)
+uv run pytest -m live --no-cov -v -rP backend/tests/test_live_evals.py   # 15 live chat evals; prints every reply
 uv run ruff check                # lint
 ```
 
