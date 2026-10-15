@@ -751,3 +751,12 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Proved locally with the exact command: the real image passes (the retry covered a "connection reset" during startup); a `{"status": "degraded"}` body, a 404 and a failing build each exit 1.
   - First CI run on PR #45: all 4 jobs green; the `container` job printed `true` after one startup retry.
   - Review: three reviewer agents, no issues. Left out as defensive: `pipefail`, a curl `--max-time`, and a cleanup step (runners are discarded after each job).
+- **E8-5 moved to Done in Jira** after PR #45 merged (Michelle).
+- **E8-6 Post-deploy smoke test: Done (PR pending).**
+  - Checked first: the live site returns 200 for all 5 pages, but also for `/does-not-exist` (the SPA fallback), so a status check alone proves little. Missing assets and `/api/*` return real 404s. Vercel posts GitHub deployment statuses with environment "Production" or "Preview" (checked with `gh api`).
+  - Decisions (Michelle): Python stdlib script; each page must serve the app root and every `/assets/` file it links; run by hand and after each production deploy; reuse it in the CI `container` job. Minimal design: stop at the first problem, retry 15 times 2 seconds apart.
+  - `scripts/smoke_test.py` (default `https://www.michellelewis.dev`) with unit tests for asset parsing and the health body. New `Smoke test` workflow on `deployment_status` (Production, success) and the Run button. The CI `container` job now runs the script instead of curl and jq.
+  - Proved with six fake sites (one fault each) and a server that was down: each failed with a one-line reason such as `http://localhost:8104/about: HTTP 404` or `/: no assets found`; a good fake site passed. The first version printed only `HTTPError 404` and repeated every `ok` line on each retry, so failures now name the URL and success prints one line.
+  - Passed against the live site and a fresh local container (one retry while it started). CI on PR #46: all 4 jobs green. Offline: 138 passed, ruff clean.
+  - Review: three reviewer agents. Simplicity and conventions: no issues. Correctness: a 200 non-JSON health body or a binary `/assets/` file would crash instead of retrying. Neither happens today (`/api/*` never serves HTML; the only assets are one JS and one CSS file), and the script still fails, so kept as is (Michelle).
+  - Not yet proven: the workflow only runs from `main`, so the manual run and the automatic run after a production deploy are checked after merge.
