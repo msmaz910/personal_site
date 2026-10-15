@@ -356,7 +356,6 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 
 Start here when picking the project back up. All planned stories (E1 to E8) are built; these are the follow-ups, most valuable first. Turn one into a Jira story before starting it.
 
-0. **Finish E8-6 after merge.** Run `Smoke test` by hand from the Actions tab, confirm it ran by itself after the production deploy (and was skipped for previews), move E8-6 to Done in Jira, and log it. Owner: Claude.
 1. **Require CI before merging.** Check GitHub branch protection on `main`; if missing, require `backend`, `frontend`, `e2e` and `container` to pass. Protects the live site most. Owner: Michelle (repo settings), Claude (checks the list).
 2. **Automatic dependency updates.** Turn on Dependabot for GitHub Actions, npm (`frontend/`) and uv, so security and version updates arrive as PRs that CI and the smoke test can vet. Owner: Claude.
 3. **Redirect the old Vercel address.** `personal-site-one-gamma-42.vercel.app` still serves the full site with no redirect. Send it to `https://www.michellelewis.dev` so there is one official address (better for search). Owner: Michelle (Vercel domains), Claude (verify with curl).
@@ -772,3 +771,6 @@ Start here when picking the project back up. All planned stories (E1 to E8) are 
   - Passed against the live site and a fresh local container (one retry while it started). CI on PR #46: all 4 jobs green. Offline: 138 passed, ruff clean.
   - Review: three reviewer agents. Simplicity and conventions: no issues. Correctness: a 200 non-JSON health body or a binary `/assets/` file would crash instead of retrying. Neither happens today (`/api/*` never serves HTML; the only assets are one JS and one CSS file), and the script still fails, so kept as is (Michelle).
   - Not yet proven: the workflow only runs from `main`, so the manual run and the automatic run after a production deploy are checked after merge.
+- **E8-6 moved to Done in Jira** after PR #46 merged (Michelle).
+  - After merge: a manual run of `Smoke test` passed, and the production deploy of `06eda93` started it by itself and passed. Preview deploys started it too and were skipped by the `Production` filter. `deployment_status` runs also fired from the PR branch, so the "only from `main`" note above was wrong for this event.
+- **Next steps section added** above "Suggested order": six follow-ups to pick up after E8-6, most valuable first.
