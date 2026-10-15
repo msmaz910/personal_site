@@ -80,6 +80,8 @@ vercel deploy --prod   # production
 
 Each deploy adds an image to the container registry, which caps at 50. The `Prune registry` workflow trims it after every merge to `main` and needs the `VERCEL_TOKEN` GitHub secret. Run it by hand from the Actions tab to preview (dry run is on by default).
 
+After every production deploy, the `Smoke test` workflow checks that the five pages, their assets and `/api/health` load on https://www.michellelewis.dev. CI runs the same script against the container. Run it yourself with `uv run --no-project scripts/smoke_test.py [base-url]`.
+
 ## Editing content
 
 - Page text: `frontend/src/data/*.ts`
@@ -118,4 +120,4 @@ npm run e2e:build                 # rebuild after app changes
 npm run e2e
 ```
 
-CI (`.github/workflows/ci.yml`) runs the backend, frontend and end-to-end checks, plus a container smoke test (build the image, run it, check `/api/health`), on every PR and on pushes to `main`. It never calls OpenRouter.
+CI (`.github/workflows/ci.yml`) runs the backend, frontend and end-to-end checks, plus a container smoke test (build the image, run it, then `scripts/smoke_test.py`), on every PR and on pushes to `main`. It never calls OpenRouter.

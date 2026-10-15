@@ -58,8 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
       - run: docker build -f Dockerfile.vercel -t site .
       - run: docker run -d --name site -p 8000:8000 site
-      - run: curl -sS --fail-with-body --retry 15 --retry-delay 2 --retry-all-errors localhost:8000/api/health | jq -e '. == {"status":"ok"}'
+      - run: uv run --no-project scripts/smoke_test.py http://localhost:8000
       - run: docker logs site
         if: failure()
