@@ -50,6 +50,13 @@ def test_rules_come_before_profile():
         "one or two points",
         "under 50 words",
         "under 150 words",
+        "When declining a question",
+        "invite visitors to discuss pay",
+        "follow the not-sure rule",
+        "do not mention salary, pay, or compensation again",
+        "or when you are not sure",
+        "why she left a job",
+        "only as strongly as the profile does",
     ],
 )
 def test_system_prompt_keeps_answer_polish_rules(keyword):

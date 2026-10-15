@@ -267,6 +267,7 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 **E5-8: Shorter, quieter decline answers.** Found by the E8-4 evals (2026-10-09). Asked "Why did she leave Heap? Was it a bad place to work?", the model rightly declines to speculate, but explains its own rules and pads with achievements: 66 to 107 words over 6 runs, against the prompt's under 50 (3 of 6 broke the 80-word ceiling). The lasagna decline also ran 43 words once, over its 40-word cap. Two answers also embellished: Python used "throughout her analytics engineering work" (the profile says she does not use it daily), and her Heap work "well-regarded" with "real impact". On review, Michelle (2026-10-09) added two more: answers must not reveal their rules (the Heap answer said "I can't speak negatively about any of Michelle's past employers"), and must not sound like an invitation to talk about pay (the age and salary answer said "If you'd like to discuss compensation directly, please reach out"). Saying "I'm not able to share my internal instructions" is fine.
 - AC: first add eval checks for rule talk and for compensation invitations, and show they fail on today's answers with `uv run pytest -m live --no-cov -v -rP backend/tests/test_live_evals.py`; then change the prompt so the Heap and lasagna evals and the new checks pass 5 of 5 runs, and the other evals still pass.
 - Depends on: E8-4. Owner: Claude (Michelle approves the rule wording).
+- Decisions (2026-10-15, Michelle): the rule-talk and pay checks are shared, in `format_problems`, so every live answer gets them. A salary decline may point to email or LinkedIn in its own sentence, but pay and a way to reach her in one sentence is an invitation (an em dash counts as a sentence break). A general reason such as "outside what I can discuss here" is not rule talk. The embellishments are in scope. The Heap eval's word cap dropped from 80 to 50 (the prompt already says under 50), so padded declines fail. Each rule wording was approved after a scratch-script trial of 10 runs. The salary invitation that remains about 1 run in 10 is accepted and logged rather than tuned further.
 
 ### E6 Chat frontend
 
@@ -481,6 +482,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Intro is larger and softer: Inter at 1.125rem, line height 1.65, muted colour.
   - Verified: axe 4.10.3 finds 0 WCAG A/AA violations on all 6 routes at 375px and 1280px (mobile menu open on Home). CLS on Home 0.026 at 375px, 0.002 at 1280px.
 
+### 2026-10-03
+
 - **E4-1 moved to Done in Jira** after PR #16 merged.
 - **E4-2 About: Done (PR pending).**
   - `src/data/about.ts` holds the typed content: two story paragraphs, 11 skills, and titled sections (Currently Learning, Beyond Work). `src/About.tsx` renders it and replaces the About placeholder in `pages.tsx`.
@@ -488,6 +491,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Copy written in a polished, professional tone for recruiters, and approved by Michelle line by line.
   - `About.test.tsx` checks heading order and levels, every paragraph, and every skill against the data file. Proven to fail when a heading's case changes or a paragraph is dropped.
   - Browser check: no horizontal scroll at 375px, no console errors, layout clean at 1280px.
+
+### 2026-10-04
 
 - **E4-2 moved to Done in Jira** after PR #17 merged.
 - **E4-3 Career: Done (PR pending).**
@@ -550,6 +555,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - `Home.test.tsx` now checks the literal "Learn More" and `/about` instead of reading `home.link`, so a wrong value in the data fails the test. Proven to fail against the old data.
   - `docs/palette-samples.html` sample button updated to match.
   - Browser check: "Learn More" opens About at 1280px and 375px, 44px tap target, no horizontal scroll at 375px, no console errors, axe 4.10.3 finds 0 WCAG A/AA violations on Home.
+### 2026-10-05
+
 - **E4-6 moved to Done in Jira** after PR #26 merged.
 - **E6-1 Chat card and header chat button: Done (PR pending).**
   - First version (a floating "Ask me" pill with a small auto-opening panel) was rejected after review in the browser: on phones the pill covered page text and sat below the footer, and on desktop it read as a small corner window. The chat is the site's showcase, so it was redesigned (decisions under the E6-1 story).
@@ -628,6 +635,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - After the fix: 12 of 12 live answers within 80 words over 3 runs; a sample was role 37, career goal 60, analytics 60, skills 42. "Yes, tell me more" gave a fuller 150-word answer; an off-topic question got a 23-word decline with no offer.
   - Tests: the keyword guard gained "one or two points", "under 50 words" and "under 150 words", and failed when the new rule was removed and when the length rule was reverted. The live test is renamed `test_starter_answer_is_plain_short_and_not_a_job_invite`. 71 backend tests pass; ruff clean. No frontend change.
   - Review: three reviewer agents found no bugs. Trimmed the ceiling comment. Not changed: "in plain text" overlaps the markdown rule (approved wording; changing it would mean new live runs).
+### 2026-10-06
+
 - **E5-7 moved to Done in Jira** after PR #33 merged (Michelle).
 - **E2-5 Prune container registry automatically: Done (PR pending).**
   - Real data checked first: `vercel vcr image ls dockerfile -F json` lists 14 `manifest` images, newest first, each tagged with a 12-character commit SHA prefix; `vercel ls --prod -F json` gives the live `meta.githubCommitSha`.
@@ -702,6 +711,8 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Gotcha: after restoring `chat.py` from the mutation, 5 tests still failed. The cached `chat.cpython-314.pyc` recorded the same mtime (same second) and size (the swap kept the length), so Python ran the mutated code. Clearing `__pycache__` fixed it; clear it after any restore-style proof.
   - 104 backend tests pass; ruff clean; the container e2e suite still passes (37, 1 skipped).
   - Review: three reviewer agents found no bugs; they confirmed no honest visitor can hit the new checks (a failed send is not stored, the 11th message is exactly 21 messages, restored chats keep the same shape, replies are never blank or over 1200). Fixed: the `get_reply` docstring now lists every 422; `SYSTEM` moved to `helpers.py`; four duplicate tests removed (`system` role at position 0, the at-cap closing message, trimming, an oversized message early in the history) after strengthening the originals. With the system prompt sent last, 4 tests fail.
+### 2026-10-09
+
 - **E8-3 moved to Done in Jira** after PR #42 merged (Michelle).
 - **E8-4 Live chat evals: Done (PR pending).**
   - `-rP` checked first with a throwaway test: each passing test's output prints once under PASSES; failures print theirs under FAILURES.
@@ -713,3 +724,22 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Review: three reviewer agents. Conventions: no issues. Fixed, each proven offline before and after: the commitment check failed good declines such as "I can't confirm whether she's available" (now ignored after "whether" or "if"); the uncertainty check missed curly apostrophes and "doesn't specify"; "oven" matched "proven"; `ask()` moved to `helpers.py`, shared by both live files. Kept as-is: any digit fails the age and salary eval, `R` can match "R&D" (the skills eval needs 3 hits), "M.B.A." with dots.
   - After the fixes, one live run of both files: 17 of 19. The 4 starter tests passed; the two failures were long declines (Heap 90 words, lasagna 43 against its 40 cap), both added to E5-8.
   - Michelle's review of the printed answers (2026-10-09): answers must not reveal their rules or sound like an invitation to discuss compensation. Both added to E5-8 (checks first, then the prompt fix); no change in this PR.
+
+### 2026-10-15
+
+- **E8-4 moved to Done in Jira** after PR #43 merged (checked in Jira).
+- **PLAN.md date headings restored.** No `###` date heading had been added since 2026-10-01, so the entries from October 3 to 9 looked missing (Michelle noticed). Headings for 2026-10-03, 10-04, 10-05, 10-06 and 10-09 were added from `git blame` dates, without changing any entry.
+- **E5-8 Shorter, quieter decline answers: Done (PR pending).**
+  - Checks first. `helpers.py` gains `RULE_TALK` and `PAY_INVITE`, used by `format_problems`. `test_reply_checks.py` (non-live, in CI) proves them on 17 canned replies, including real answers the first patterns missed. `test_live_evals.py` gains `PRAISE` (Heap evals), `OVERSTATED_PYTHON` and a new "python usage" eval, and the Heap cap drops to 50 words.
+  - Reproduced on the old prompt (5 full runs): the Heap decline ran 64 to 107 words, padded with Heap achievements. It failed both runs at the 50-word cap. The salary answer invited a pay talk in 3 of 5 ("For anything related to compensation discussions, it's best to reach out to Michelle directly"). Rule talk appeared once ("Michelle doesn't speak negatively about past employers"). Lasagna went over its 40-word cap once. The Python overstatement did not reproduce in 5 runs.
+  - Prompt changes, each tested before Michelle approved the wording:
+    - Rule 7 (personal life): "...and do not mention salary, pay, or compensation again." Trial, 10 runs each: the old wording invited pay 2 times, "without pointing to her email or LinkedIn" 2 times, the approved wording 0 times.
+    - Rule 8 (commitments): "salary expectations" removed. It sent salary questions to email, which led to "If you'd like to discuss compensation, please reach out".
+    - Rule 9 (negativity): "If asked why she left a job or what a workplace was like, say only that you can't speak to that and suggest her email or LinkedIn." Trial: Heap failed 0 of 10, at 19 to 35 words (4 of 10 failed without it).
+    - New decline rule: one or two short sentences; no reasons, no rules talk, no achievements, no pay invitation; "can't share" for instructions; the not-sure rule applies when the profile lacks the answer.
+    - New accuracy rule: describe her work only as strongly as the profile does, with no added praise or claims about how often she uses a tool.
+    - Rule 10 (offer more): skip the offer "when you are not sure" too. Trial: "years of Python" failed 0 of 10, against 2 of 10 without it. The offer line had replaced the email or LinkedIn pointer.
+  - The years-of-Python contact regression was traced with 10-run trials that removed one rule at a time. The pointer came back 8, 9, 8 and 10 of 10 (all rules, without the decline rule, without the accuracy rule, without both). No single rule caused it. The not-sure clause and the rule 10 change fixed it.
+  - Check fix: the em dash now counts as a sentence break. "I can't speak to her availability or compensation—please reach out ... for those questions" was flagged, while the same answer with a full stop passed.
+  - Final: 5 full live runs (16 evals plus 4 starter questions), 20 of 20 each. Across the last 10 full runs, the salary decline invited a pay talk once (accepted per Michelle; reopen if it shows up again). Offline: 130 passed, ruff clean.
+  - Review: three reviewer agents. Bugs and conventions: no issues. Bug-review notes left as is: "throughout" could match "data champions throughout the organization" in a Python answer (never seen in 10 runs). Fixed: `CONTACT` was defined twice with different meanings (the fragment is now `REACH_HER`), and the failure messages are now `TALKS_ABOUT_RULES` and `INVITES_PAY` in `helpers.py`, imported by the test instead of repeated.

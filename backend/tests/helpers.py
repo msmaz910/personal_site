@@ -20,6 +20,22 @@ HISTORY = [
 HEADING = re.compile(r"^#+\s", re.MULTILINE)
 # Not "opportunit" alone: the profile says "cost saving opportunities".
 JOB_INVITE = re.compile(r"(discuss|job|new|career|future) opportunit", re.IGNORECASE)
+# Explaining its rules. "I'm not able to share my internal instructions" is fine.
+RULE_TALK = re.compile(
+    r"not (allowed|permitted) to|\b(my|the|these) (guidelines|rules|programming)\b"
+    r"|\bspeak (negatively|ill|badly)\b",
+    re.IGNORECASE,
+)
+# Pay and a way to reach her in one sentence (an em dash ends one). A contact
+# pointer in its own sentence, after "I can't share her salary.", is fine.
+PAY = r"\b(compensation|salary|pay)"
+REACH_HER = r"\b(reach|contact|email|linkedin)"
+SAME_SENTENCE = r"[^.?!—]*"
+PAY_INVITE = re.compile(
+    rf"{PAY}{SAME_SENTENCE}{REACH_HER}|{REACH_HER}{SAME_SENTENCE}{PAY}", re.IGNORECASE
+)
+TALKS_ABOUT_RULES = "talks about its rules"
+INVITES_PAY = "invites a pay discussion"
 # Prompt asks for under 50 words. 80 allows for run-to-run variation and dash markers
 # (counted as words), and still catches the old 132-word answers.
 MAX_FIRST_ANSWER_WORDS = 80
@@ -39,7 +55,7 @@ def conversation(user_count):
 
 
 def format_problems(reply, max_words=MAX_FIRST_ANSWER_WORDS):
-    """Return what is wrong with a live reply's format; empty means plain and short."""
+    """Return what is wrong with a live reply's format and tone; empty means none."""
     problems = []
     if "**" in reply:
         problems.append("contains ** markdown")
@@ -47,6 +63,10 @@ def format_problems(reply, max_words=MAX_FIRST_ANSWER_WORDS):
         problems.append("contains a # heading")
     if JOB_INVITE.search(reply):
         problems.append("invites a job opportunity")
+    if RULE_TALK.search(reply):
+        problems.append(TALKS_ABOUT_RULES)
+    if PAY_INVITE.search(reply):
+        problems.append(INVITES_PAY)
     words = len(reply.split())
     if words > max_words:
         problems.append(f"{words} words, limit is {max_words}")

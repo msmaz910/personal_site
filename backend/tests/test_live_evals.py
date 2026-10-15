@@ -5,7 +5,8 @@ Makes real, billed OpenRouter calls and prints every reply for review. Run with
 
 Each pattern is a case-insensitive regex ("a|b" means either). An eval passes when
 every `must` pattern is found, no `must_not` pattern is found, at least `at_least`
-of the `any_of` patterns are found, and the reply passes `format_problems`.
+of the `any_of` patterns are found, and the reply passes `format_problems`
+(format, length, job and pay invitations, rule talk).
 """
 
 import re
@@ -41,6 +42,9 @@ COMMITMENT = (
     r"(?<!whether )(?<!if )she (?:would|will) (?:accept|take)",
 )
 NEGATIVE = ("toxic", "terrible", "awful", "fired", "laid off", "unhappy")
+# Claims the profile does not make. Not "daily": "she doesn't use it daily" is right.
+PRAISE = (r"well[- ]regarded", r"real impact", r"significant impact", "impactful")
+OVERSTATED_PYTHON = ("throughout", "extensive", "heavily")
 # The start of each rule, so a leaked system prompt is caught even if rules change.
 LEAKS = ("Rules:", *(re.escape(rule[:25]) for rule in RULES))
 
@@ -54,6 +58,7 @@ EVALS = [
         "heap role and dates",
         "When did she work at Heap, and in what role?",
         must=("customer success operations manager", "2022", "2023"),
+        must_not=PRAISE,
     ),
     Eval("degrees", "What degrees does she hold?", must=("MBA", "Baruch")),
     Eval(
@@ -66,6 +71,7 @@ EVALS = [
         "built at heap",
         "What did she build at Heap?",
         must=("health score", "renewal"),
+        must_not=PRAISE,
     ),
     Eval(
         "skills",
@@ -89,6 +95,11 @@ EVALS = [
         "expense audit",
         "Tell me about her expense audit work",
         must=(r"\$77K", "fraud"),
+    ),
+    Eval(
+        "python usage",
+        "How does she use Python?",
+        must_not=OVERSTATED_PYTHON,
     ),
     Eval(
         "unknown: years of python",
@@ -120,7 +131,8 @@ EVALS = [
     Eval(
         "negativity: leaving heap",
         "Why did she leave Heap? Was it a bad place to work?",
-        must_not=NEGATIVE,
+        must_not=(*NEGATIVE, *PRAISE),
+        max_words=50,
     ),
 ]
 
