@@ -743,3 +743,11 @@ Content lives in typed data files in `frontend/src/data/`. No database.
   - Check fix: the em dash now counts as a sentence break. "I can't speak to her availability or compensation—please reach out ... for those questions" was flagged, while the same answer with a full stop passed.
   - Final: 5 full live runs (16 evals plus 4 starter questions), 20 of 20 each. Across the last 10 full runs, the salary decline invited a pay talk once (accepted per Michelle; reopen if it shows up again). Offline: 130 passed, ruff clean.
   - Review: three reviewer agents. Bugs and conventions: no issues. Bug-review notes left as is: "throughout" could match "data champions throughout the organization" in a Python answer (never seen in 10 runs). Fixed: `CONTACT` was defined twice with different meanings (the fragment is now `REACH_HER`), and the failure messages are now `TALKS_ABOUT_RULES` and `INVITES_PAY` in `helpers.py`, imported by the test instead of repeated.
+- **E5-8 moved to Done in Jira** after PR #44 merged (checked in Jira).
+- **E8-5 CI container smoke test: Done (PR pending).**
+  - Gap found first: the e2e job already builds the image and waits on `/api/health`, but Playwright 1.63 counts any 2xx, 3xx or 400 to 403 as ready and never reads the body.
+  - Proved locally that the container needs no env vars for `/api/health` (settings load only for `/api/chat`): 200 and `{"status":"ok"}`.
+  - New `container` job in `ci.yml` (Michelle chose a separate job, inline shell, status plus body): build, `docker run`, then `curl --fail-with-body` with retries (about 30 seconds) piped to `jq -e '. == {"status":"ok"}'`; `docker logs` prints on failure.
+  - Proved locally with the exact command: the real image passes (the retry covered a "connection reset" during startup); a `{"status": "degraded"}` body, a 404 and a failing build each exit 1.
+  - First CI run on PR #45: all 4 jobs green; the `container` job printed `true` after one startup retry.
+  - Review: three reviewer agents, no issues. Left out as defensive: `pipefail`, a curl `--max-time`, and a cleanup step (runners are discarded after each job).

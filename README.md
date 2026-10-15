@@ -118,4 +118,4 @@ npm run e2e:build                 # rebuild after app changes
 npm run e2e
 ```
 
-CI (`.github/workflows/ci.yml`) runs the backend, frontend and end-to-end checks on every PR and on pushes to `main`. It never calls OpenRouter.
+CI (`.github/workflows/ci.yml`) runs the backend, frontend and end-to-end checks, plus a container smoke test (build the image, run it, check `/api/health`), on every PR and on pushes to `main`. It never calls OpenRouter.
