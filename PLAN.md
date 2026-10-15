@@ -352,6 +352,18 @@ Content lives in typed data files in `frontend/src/data/`. No database.
 - AC: script passes against the production URL; documented in README.
 - Depends on: E7-3. Owner: Claude.
 
+## Next steps
+
+Start here when picking the project back up. All planned stories (E1 to E8) are built; these are the follow-ups, most valuable first. Turn one into a Jira story before starting it.
+
+0. **Finish E8-6 after merge.** Run `Smoke test` by hand from the Actions tab, confirm it ran by itself after the production deploy (and was skipped for previews), move E8-6 to Done in Jira, and log it. Owner: Claude.
+1. **Require CI before merging.** Check GitHub branch protection on `main`; if missing, require `backend`, `frontend`, `e2e` and `container` to pass. Protects the live site most. Owner: Michelle (repo settings), Claude (checks the list).
+2. **Automatic dependency updates.** Turn on Dependabot for GitHub Actions, npm (`frontend/`) and uv, so security and version updates arrive as PRs that CI and the smoke test can vet. Owner: Claude.
+3. **Redirect the old Vercel address.** `personal-site-one-gamma-42.vercel.app` still serves the full site with no redirect. Send it to `https://www.michellelewis.dev` so there is one official address (better for search). Owner: Michelle (Vercel domains), Claude (verify with curl).
+4. **Upgrade the Vercel CLI.** Local CLI is 62 (latest 64.2), and `prune-registry.yml` pins `vercel@62`. Update both together and dry-run the prune workflow. Owner: Claude.
+5. **Keep the chatbot honest over time.** Re-run the live evals (`uv run pytest -m live --no-cov -v -rP`) whenever the model changes; the site uses `anthropic/claude-sonnet-5`, and Sonnet 5.5 is now available. Set a spending alert on OpenRouter. Owner: Claude (evals), Michelle (OpenRouter).
+6. **Optional: a case study on the Portfolio page.** A short write-up of how this site was built (plan, CI, evals, safety checks) to show engineering leadership. Owner: Michelle (story), Claude (draft).
+
 ## Suggested order
 
 1. E1 (foundation and test setup)
